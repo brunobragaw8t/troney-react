@@ -1,73 +1,72 @@
-# React + TypeScript + Vite
+# Troney
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+Reworking this in React. Original project [made with Nuxt](https://github.com/brunobragaw8t/troney).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Troney (word-play for tracking money) is an expense tracker web app focused on a
+simple and fast UI to keep my life on track.
 
-## React Compiler
+Some of its features are:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Record earnings, expenses and movements;
+- Separate money by wallets;
+- Organize expenses with buckets and categories;
+- Monthly graphs;
+- Keyboard shortcuts for navigating the UI.
 
-## Expanding the ESLint configuration
+Here's a [demo](https://troney.vercel.app/),
+and here's the [Storybook](https://troney-storybook.vercel.app/)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ToDo and milestones
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+- [x] Validate environment variables
+- [x] Setup Prettier
+- [ ] Setup Storybook
+- [ ] Create auth landing
+- [ ] Create user registration
+- [ ] Create user activation
+- [ ] Create route to resend activation email
+- [ ] Create user login
+- [ ] Create user logout
+- [ ] Create password recovery functionality
+- [ ] Send email when user password changes
+- [ ] Implement refresh session functionality
+- [ ] Seed default wallets for user
+- [ ] Create wallets CRUD
+- [ ] Create categories CRUD
+- [ ] Seed default categories for user
+- [ ] Emoji in categories (to serve as icons when minimized)
+- [ ] Create buckets CRUD
+- [ ] Seed default buckets for user
+- [ ] Create earnings CRUD
+- [ ] Prevent registering earnings if buckets aren't 100%
+- [ ] Create expenses CRUD
+- [ ] Create movements CRUD
+- [ ] Format currency consistently
+- [ ] Paginate data tables
+- [ ] Add autocomplete of previously registered expenses, with price
+- [ ] View history of prices
+- [ ] Keyboard navigation in lists
+- [ ] Charts per month, trimester, semester and year
+- [ ] Switch between pie and bar chart
+- [ ] OCR
+- [ ] Extraordinary expense (doesn't count toward average)
+- [ ] Line chart of balance across wallets (with average growth per month)
+- [ ] Mark expenses as recurring
+- [ ] Line chart of recurring bills going up and down (e.g. to track electricity consumption and water usage)
+- [ ] Semi-automate the registration of a recurring expense
+- [ ] Log out user when failing to get their data from database
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Technologies
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+- [React](https://react.dev/)
+- [TanStack Router](https://tanstack.com/router/)
+- [Convex](https://www.convex.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Key decisions
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+- No shadcn/ui, to learn more about accessibility;
+- No animations nor transitions, focusing on simplicity;
+- Desktop-first experience, focused on keyboard navigation and accessibility.
