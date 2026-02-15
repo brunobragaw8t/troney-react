@@ -24,6 +24,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Setup Prettier
 - [x] Setup Tailwind
 - [x] Install icons
+- [x] Setup router
 - [ ] Setup Storybook
 - [ ] Create auth landing
 - [ ] Create user registration

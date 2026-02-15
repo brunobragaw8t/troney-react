@@ -1,6 +1,6 @@
 import { cn } from "../../../lib/utils";
 import { Tooltip } from "../../../components/ui/tooltip/tooltip";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 type Variant =
   | "primary"
@@ -91,7 +91,7 @@ export function Button(props: Props) {
 
   if (props.type === "link") {
     return (
-      <Link href={props.href} target={props.target} className={className}>
+      <Link to={props.href} target={props.target} className={className}>
         {content}
         {tooltipElement}
       </Link>
