@@ -22,6 +22,8 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 
 - [x] Validate environment variables
 - [x] Setup Prettier
+- [x] Setup Tailwind
+- [x] Install icons
 - [ ] Setup Storybook
 - [ ] Create auth landing
 - [ ] Create user registration
