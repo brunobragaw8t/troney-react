@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Currency } from "./currency";
-import { BalanceVisibilityProvider } from "@/contexts/balance-visibility-context";
+import { BalanceVisibilityProvider } from "../../../contexts/balance-visibility-context";
 
 const meta = {
   component: Currency,
