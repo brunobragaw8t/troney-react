@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "../../../lib/utils";
 import type { LucideProps } from "lucide-react";
 import { ChevronDown } from "lucide-react";
 import type React from "react";

@@ -1,5 +1,3 @@
-import type React from "react";
-
 interface FieldErrorProps {
   id: string;
   error?: string | string[];

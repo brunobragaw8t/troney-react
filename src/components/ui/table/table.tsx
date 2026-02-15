@@ -1,9 +1,9 @@
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { cn } from "@/lib/utils";
+import { cn } from "../../../lib/utils";
 import {
   createContext,
-  Dispatch,
-  SetStateAction,
+  type Dispatch,
+  type SetStateAction,
   useCallback,
   useContext,
   useEffect,

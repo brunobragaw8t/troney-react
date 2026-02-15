@@ -1,7 +1,7 @@
 "use client";
 
 import { useBalanceVisibility } from "@/contexts/balance-visibility-context";
-import { currency } from "@/lib/utils";
+import { currency } from "../../../lib/utils";
 
 interface CurrencyProps {
   value: number;

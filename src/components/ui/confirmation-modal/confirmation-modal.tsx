@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button/button";
+import { Button } from "../../../components/ui/button/button";
 import { AlertTriangle } from "lucide-react";
 import { useCallback, useEffect, useId } from "react";
 import { createPortal } from "react-dom";
