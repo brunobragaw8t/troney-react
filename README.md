@@ -25,7 +25,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Setup Tailwind
 - [x] Install icons
 - [x] Setup router
-- [ ] Setup Storybook
+- [x] Setup Storybook
 - [ ] Create auth landing
 - [ ] Create user registration
 - [ ] Create user activation

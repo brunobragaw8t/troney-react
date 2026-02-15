@@ -1,5 +1,3 @@
-import type React from "react";
-
 interface FieldLabelProps {
   htmlFor: string;
   label: string;

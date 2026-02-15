@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button/button";
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Button } from "../../../components/ui/button/button";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { ConfirmationModal } from "./confirmation-modal";
 

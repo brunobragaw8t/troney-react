@@ -1,4 +1,4 @@
-import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useKeyboardShortcuts } from "../../../hooks/use-keyboard-shortcuts";
 import { cn } from "../../../lib/utils";
 import {
   createContext,

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "./button";
 import { PlusCircle } from "lucide-react";
 import { Keymap } from "../keymap/keymap";

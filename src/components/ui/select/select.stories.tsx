@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Building, MapPin, User } from "lucide-react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { MapPin } from "lucide-react";
 import { useState } from "react";
 import { Select } from "./select";
 
