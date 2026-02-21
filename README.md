@@ -27,7 +27,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Setup router
 - [x] Setup Storybook
 - [x] Create auth landing
-- [ ] Create user registration
+- [x] Create user registration
 - [ ] Create user activation
 - [ ] Create route to resend activation email
 - [ ] Create user login

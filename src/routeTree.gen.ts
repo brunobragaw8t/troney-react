@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
+import { Route as ControlPanelIndexRouteImport } from './routes/control-panel/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ControlPanelIndexRoute = ControlPanelIndexRouteImport.update({
+  id: '/control-panel/',
+  path: '/control-panel/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
@@ -26,25 +32,29 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/': typeof AuthIndexRoute
+  '/control-panel/': typeof ControlPanelIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthIndexRoute
+  '/control-panel': typeof ControlPanelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/': typeof AuthIndexRoute
+  '/control-panel/': typeof ControlPanelIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/auth' | '/auth/'
+  fullPaths: '/auth' | '/auth/' | '/control-panel/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth'
-  id: '__root__' | '/auth' | '/auth/'
+  to: '/auth' | '/control-panel'
+  id: '__root__' | '/auth' | '/auth/' | '/control-panel/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  ControlPanelIndexRoute: typeof ControlPanelIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -54,6 +64,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/control-panel/': {
+      id: '/control-panel/'
+      path: '/control-panel'
+      fullPath: '/control-panel/'
+      preLoaderRoute: typeof ControlPanelIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/': {
@@ -80,6 +97,7 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
+  ControlPanelIndexRoute: ControlPanelIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
