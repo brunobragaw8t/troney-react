@@ -1,8 +1,8 @@
+import { useAuthActions } from "@convex-dev/auth/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { LoginForm } from "../../components/auth/login-form";
-import { RecoverForm } from "../../components/auth/recover-form";
-import { RegisterForm } from "../../components/auth/register-form";
+import { AiOutlineGoogle } from "react-icons/ai";
+import { Button } from "../../components/ui/button/button";
 
 export const Route = createFileRoute("/auth/")({
   component: RouteComponent,
@@ -11,44 +11,25 @@ export const Route = createFileRoute("/auth/")({
 export type Form = "login" | "register" | "recover";
 
 function RouteComponent() {
-  const [form, setForm] = useState<Form>("login");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const className = "flex flex-col gap-4";
+  const { signIn } = useAuthActions();
 
-  const [email, setEmail] = useState("");
-
-  function handleEmailChange(evt: React.ChangeEvent<HTMLInputElement>) {
-    setEmail(evt.target.value);
+  function signInWithGoogle() {
+    setIsLoading(true);
+    signIn("google", { redirectTo: "/control-panel" });
   }
 
   return (
     <>
-      {form === "login" && (
-        <LoginForm
-          className={className}
-          email={email}
-          onEmailChange={handleEmailChange}
-          setForm={setForm}
-        />
-      )}
-
-      {form === "recover" && (
-        <RecoverForm
-          className={className}
-          email={email}
-          onEmailChange={handleEmailChange}
-          setForm={setForm}
-        />
-      )}
-
-      {form === "register" && (
-        <RegisterForm
-          className={className}
-          email={email}
-          onEmailChange={handleEmailChange}
-          setForm={setForm}
-        />
-      )}
+      <Button
+        type="button"
+        onClick={signInWithGoogle}
+        loading={isLoading}
+        label="Sign in with Google"
+        icon={AiOutlineGoogle}
+        iconPosition="left"
+      />
     </>
   );
 }

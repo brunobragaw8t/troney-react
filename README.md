@@ -26,15 +26,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Install icons
 - [x] Setup router
 - [x] Setup Storybook
-- [x] Create auth landing
-- [x] Create user registration
-- [ ] Create user activation
-- [ ] Create route to resend activation email
-- [ ] Create user login
-- [ ] Create user logout
-- [ ] Create password recovery functionality
-- [ ] Send email when user password changes
-- [ ] Implement refresh session functionality
+- [x] Add auth
 - [ ] Seed default wallets for user
 - [ ] Create wallets CRUD
 - [ ] Create categories CRUD
@@ -59,7 +51,6 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [ ] Mark expenses as recurring
 - [ ] Line chart of recurring bills going up and down (e.g. to track electricity consumption and water usage)
 - [ ] Semi-automate the registration of a recurring expense
-- [ ] Log out user when failing to get their data from database
 
 ## Technologies
 
