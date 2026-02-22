@@ -9,17 +9,21 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
 
-export default defineConfig([globalIgnores(["dist"]), {
-  files: ["**/*.{ts,tsx}"],
-  extends: [
-    js.configs.recommended,
-    tseslint.configs.recommended,
-    reactHooks.configs.flat.recommended,
-    reactRefresh.configs.vite,
-    eslintConfigPrettier,
-  ],
-  languageOptions: {
-    ecmaVersion: 2020,
-    globals: globals.browser,
+export default defineConfig([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+      eslintConfigPrettier,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
   },
-}, ...storybook.configs["flat/recommended"]]);
+  ...storybook.configs["flat/recommended"],
+]);
