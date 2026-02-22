@@ -84,6 +84,8 @@ Expense categories, scoped per user.
 
 **Notes:** `_id` and `_creationTime` are auto-provided by Convex. No `updatedAt`. Default `color` is applied at mutation level, not schema level.
 
+**Default categories:** New users are seeded with 11 default categories (Food, Transport, Entertainment, Clothing, Hygiene, Health, Education, Bills, House, Investments, Other) via the `afterUserCreatedOrUpdated` callback in `convex/auth.ts`. The list is defined as `DEFAULT_CATEGORIES` in `convex/categories.ts`.
+
 ## Convex Functions (`convex/categories.ts`)
 
 All category functions are scoped per user via `userId` ownership checks. Mutations use `ConvexError` from `convex/values` for error handling.

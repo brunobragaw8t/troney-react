@@ -29,7 +29,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Add auth
 - [x] Define categories schema
 - [x] Create categories CRUD
-- [ ] Seed default categories for user
+- [x] Seed default categories for user
 - [ ] Create wallets CRUD
 - [ ] Seed default wallets for user
 - [ ] Emoji in categories (to serve as icons when minimized)

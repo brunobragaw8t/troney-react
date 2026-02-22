@@ -3,6 +3,20 @@ import { ConvexError, v } from "convex/values";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 
+export const DEFAULT_CATEGORIES = [
+  { name: "Food", icon: "🥗", color: "#10b981" },
+  { name: "Transport", icon: "🚗", color: "#3b82f6" },
+  { name: "Entertainment", icon: "🍿", color: "#f59e0b" },
+  { name: "Clothing", icon: "👕", color: "#8b5cf6" },
+  { name: "Hygiene", icon: "🧴", color: "#06b6d4" },
+  { name: "Health", icon: "🩺", color: "#ef4444" },
+  { name: "Education", icon: "🎓", color: "#6366f1" },
+  { name: "Bills", icon: "🧾", color: "#64748b" },
+  { name: "House", icon: "🏠", color: "#d97706" },
+  { name: "Investments", icon: "📈", color: "#059669" },
+  { name: "Other", icon: "❓", color: "#6b7280" },
+] as const;
+
 async function requireAuth(ctx: QueryCtx | MutationCtx) {
   const userId = await getAuthUserId(ctx);
 
