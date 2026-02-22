@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { MapPin } from "lucide-react";
+import { LuMapPin } from "react-icons/lu";
 import { useState } from "react";
 import { Select } from "./select";
 
@@ -48,7 +48,7 @@ const countryOptions = [
 export const Default: Story = {
   args: {
     label: "Country",
-    icon: MapPin,
+    icon: LuMapPin,
     name: "country",
     value: "",
     onChange: () => {},
@@ -70,7 +70,7 @@ export const Default: Story = {
 export const WithErrors: Story = {
   args: {
     label: "Country",
-    icon: MapPin,
+    icon: LuMapPin,
     name: "country",
     value: "",
     onChange: () => {},

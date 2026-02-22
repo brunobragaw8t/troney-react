@@ -1,5 +1,5 @@
 import { Button } from "../../../components/ui/button/button";
-import { AlertTriangle } from "lucide-react";
+import { LuTriangleAlert } from "react-icons/lu";
 import { useCallback, useEffect, useId } from "react";
 import { createPortal } from "react-dom";
 import { Keymap } from "../keymap/keymap";
@@ -101,7 +101,7 @@ export function ConfirmationModal({
           <div className="flex items-start space-x-3">
             {variant === "danger-ghost" && (
               <div className="flex-shrink-0">
-                <AlertTriangle className="h-6 w-6 text-red-400" />
+                <LuTriangleAlert className="h-6 w-6 text-red-400" />
               </div>
             )}
 

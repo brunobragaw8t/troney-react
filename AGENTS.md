@@ -111,7 +111,7 @@ function RouteComponent() { ... }
 - Union types for variants: `type Variant = "primary" | "outline" | "danger"`
 - Discriminated unions for polymorphic props (e.g., button vs link)
 - Use `React.ComponentProps<"element">` to extend HTML element props
-- Use `React.ComponentType<{ size: number }>` for icon props
+- Use `React.ComponentType<IconBaseProps>` (from `react-icons`) for icon props
 - Use `satisfies` in story files: `} satisfies Meta<typeof Component>`
 - No `any` — strict types throughout. No `@ts-ignore`
 

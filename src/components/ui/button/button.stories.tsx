@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "./button";
-import { PlusCircle } from "lucide-react";
+import { LuCirclePlus } from "react-icons/lu";
 import { Keymap } from "../keymap/keymap";
 
 const meta = {
@@ -76,7 +76,7 @@ export const WithIcon: Story = {
     label: "New item",
     variant: "primary",
     loading: false,
-    icon: PlusCircle,
+    icon: LuCirclePlus,
     iconPosition: "left",
   },
 };

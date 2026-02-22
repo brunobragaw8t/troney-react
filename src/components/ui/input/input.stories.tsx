@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Eye, EyeClosed, LockKeyhole, User, X } from "lucide-react";
+import { LuEye, LuEyeClosed, LuLockKeyhole, LuUser, LuX } from "react-icons/lu";
 import { useState } from "react";
 import { Input } from "./input";
 
@@ -41,7 +41,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     label: "Name",
-    icon: User,
+    icon: LuUser,
     type: "text",
     name: "name",
     value: "",
@@ -67,7 +67,7 @@ export const Default: Story = {
         {...args}
         value={value}
         onChange={handleOnChange}
-        rightAccessoryIcon={value !== "" ? X : undefined}
+        rightAccessoryIcon={value !== "" ? LuX : undefined}
         rightAccessoryAction={clearValue}
       />
     );
@@ -80,7 +80,7 @@ export const Password: Story = {
   },
   args: {
     label: "Password",
-    icon: LockKeyhole,
+    icon: LuLockKeyhole,
     type: "password",
     name: "password",
     value: "",
@@ -105,7 +105,7 @@ export const Password: Story = {
         value={value}
         onChange={handleOnChange}
         type={displayAsText ? "text" : "password"}
-        rightAccessoryIcon={displayAsText ? EyeClosed : Eye}
+        rightAccessoryIcon={displayAsText ? LuEyeClosed : LuEye}
         rightAccessoryAction={toggleDisplayAsText}
         rightAccessoryLabel={displayAsText ? "Hide password" : "Show password"}
       />
@@ -116,7 +116,7 @@ export const Password: Story = {
 export const WithErrors: Story = {
   args: {
     label: "Password",
-    icon: LockKeyhole,
+    icon: LuLockKeyhole,
     type: "password",
     name: "password",
     value: "",

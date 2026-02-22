@@ -1,6 +1,6 @@
 import { cn } from "../../../lib/utils";
-import type { LucideProps } from "lucide-react";
-import { ChevronDown } from "lucide-react";
+import type { IconBaseProps } from "react-icons";
+import { LuChevronDown } from "react-icons/lu";
 import type React from "react";
 import { useEffect, useId, useRef } from "react";
 import { FieldLabel } from "../field-label/field-label";
@@ -13,7 +13,7 @@ export interface SelectOption {
 
 interface SelectProps {
   label?: string;
-  icon?: React.ComponentType<LucideProps>;
+  icon?: React.ComponentType<IconBaseProps>;
   name: string;
   value: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -81,7 +81,7 @@ export function Select(props: SelectProps) {
         </select>
 
         <div className={cn(iconClassName, "right-0 pr-3")}>
-          <ChevronDown size={16} />
+          <LuChevronDown size={16} />
         </div>
       </div>
 

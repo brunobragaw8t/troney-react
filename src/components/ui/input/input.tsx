@@ -1,5 +1,5 @@
 import { cn } from "../../../lib/utils";
-import type { LucideProps } from "lucide-react";
+import type { IconBaseProps } from "react-icons";
 import type React from "react";
 import { useEffect, useId, useRef } from "react";
 import { FieldLabel } from "../field-label/field-label";
@@ -7,14 +7,14 @@ import { FieldErrors } from "../field-errors/field-errors";
 
 interface InputProps {
   label?: string;
-  icon?: React.ComponentType<LucideProps>;
+  icon?: React.ComponentType<IconBaseProps>;
   type: "text" | "email" | "password" | "date";
   name: string;
   value: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   autoFocus?: boolean;
-  rightAccessoryIcon?: React.ComponentType<LucideProps>;
+  rightAccessoryIcon?: React.ComponentType<IconBaseProps>;
   rightAccessoryAction?: (ref: HTMLInputElement) => void;
   rightAccessoryLabel?: string;
   error?: string | string[];

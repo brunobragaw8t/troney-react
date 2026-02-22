@@ -1,6 +1,7 @@
 import { cn } from "../../../lib/utils";
 import { Tooltip } from "../../../components/ui/tooltip/tooltip";
 import { Link } from "@tanstack/react-router";
+import type { IconBaseProps } from "react-icons";
 
 type Variant =
   | "primary"
@@ -14,7 +15,7 @@ type Props = {
   label?: string;
   variant?: Variant;
   size?: Size;
-  icon?: React.ComponentType<{ size: number }>;
+  icon?: React.ComponentType<IconBaseProps>;
   iconPosition?: "left" | "right";
   tooltip?: React.ReactNode;
 } & (ButtonProps | LinkProps);
