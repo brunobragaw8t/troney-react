@@ -10,32 +10,52 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ControlPanelIndexRouteImport } from './routes/control-panel/index'
+import { Route as CategoriesIndexRouteImport } from './routes/categories/index'
+import { Route as CategoriesCreateRouteImport } from './routes/categories/create'
 
 const ControlPanelIndexRoute = ControlPanelIndexRouteImport.update({
   id: '/control-panel/',
   path: '/control-panel/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CategoriesIndexRoute = CategoriesIndexRouteImport.update({
+  id: '/categories/',
+  path: '/categories/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesCreateRoute = CategoriesCreateRouteImport.update({
+  id: '/categories/create',
+  path: '/categories/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/categories/create': typeof CategoriesCreateRoute
+  '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
 }
 export interface FileRoutesByTo {
+  '/categories/create': typeof CategoriesCreateRoute
+  '/categories': typeof CategoriesIndexRoute
   '/control-panel': typeof ControlPanelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/categories/create': typeof CategoriesCreateRoute
+  '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/control-panel/'
+  fullPaths: '/categories/create' | '/categories/' | '/control-panel/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/control-panel'
-  id: '__root__' | '/control-panel/'
+  to: '/categories/create' | '/categories' | '/control-panel'
+  id: '__root__' | '/categories/create' | '/categories/' | '/control-panel/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  CategoriesCreateRoute: typeof CategoriesCreateRoute
+  CategoriesIndexRoute: typeof CategoriesIndexRoute
   ControlPanelIndexRoute: typeof ControlPanelIndexRoute
 }
 
@@ -48,10 +68,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlPanelIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/categories/': {
+      id: '/categories/'
+      path: '/categories'
+      fullPath: '/categories/'
+      preLoaderRoute: typeof CategoriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories/create': {
+      id: '/categories/create'
+      path: '/categories/create'
+      fullPath: '/categories/create'
+      preLoaderRoute: typeof CategoriesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  CategoriesCreateRoute: CategoriesCreateRoute,
+  CategoriesIndexRoute: CategoriesIndexRoute,
   ControlPanelIndexRoute: ControlPanelIndexRoute,
 }
 export const routeTree = rootRouteImport
