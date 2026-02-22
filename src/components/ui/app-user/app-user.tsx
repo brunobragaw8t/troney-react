@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { useState } from "react";
 import { LuEye, LuEyeOff, LuLogOut } from "react-icons/lu";
+import { api } from "../../../../convex/_generated/api";
 import { useBalanceVisibility } from "../../../contexts/balance-visibility-context";
-import { Tooltip } from "../tooltip/tooltip";
 import { Keymap } from "../keymap/keymap";
+import { Tooltip } from "../tooltip/tooltip";
 
 export function AppUser() {
   const user = useQuery(api.users.currentUser);
@@ -16,12 +15,10 @@ export function AppUser() {
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { signOut } = useAuthActions();
-  const navigate = useNavigate();
 
   async function handleLogout() {
     setIsLoggingOut(true);
     await signOut();
-    navigate({ to: "/auth" });
   }
 
   return (

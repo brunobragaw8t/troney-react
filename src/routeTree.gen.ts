@@ -9,63 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as ControlPanelIndexRouteImport } from './routes/control-panel/index'
-import { Route as AuthIndexRouteImport } from './routes/auth/index'
 
-const AuthRouteRoute = AuthRouteRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ControlPanelIndexRoute = ControlPanelIndexRouteImport.update({
   id: '/control-panel/',
   path: '/control-panel/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/auth/': typeof AuthIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
 }
 export interface FileRoutesByTo {
-  '/auth': typeof AuthIndexRoute
   '/control-panel': typeof ControlPanelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/auth/': typeof AuthIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/auth' | '/auth/' | '/control-panel/'
+  fullPaths: '/control-panel/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/control-panel'
-  id: '__root__' | '/auth' | '/auth/' | '/control-panel/'
+  to: '/control-panel'
+  id: '__root__' | '/control-panel/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ControlPanelIndexRoute: typeof ControlPanelIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/control-panel/': {
       id: '/control-panel/'
       path: '/control-panel'
@@ -73,30 +48,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlPanelIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/': {
-      id: '/auth/'
-      path: '/'
-      fullPath: '/auth/'
-      preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
   }
 }
 
-interface AuthRouteRouteChildren {
-  AuthIndexRoute: typeof AuthIndexRoute
-}
-
-const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthIndexRoute: AuthIndexRoute,
-}
-
-const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
-  AuthRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
-  AuthRouteRoute: AuthRouteRouteWithChildren,
   ControlPanelIndexRoute: ControlPanelIndexRoute,
 }
 export const routeTree = rootRouteImport
