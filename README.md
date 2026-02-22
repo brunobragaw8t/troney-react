@@ -27,10 +27,11 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Setup router
 - [x] Setup Storybook
 - [x] Add auth
-- [ ] Seed default wallets for user
-- [ ] Create wallets CRUD
+- [x] Define categories schema
 - [ ] Create categories CRUD
 - [ ] Seed default categories for user
+- [ ] Create wallets CRUD
+- [ ] Seed default wallets for user
 - [ ] Emoji in categories (to serve as icons when minimized)
 - [ ] Create buckets CRUD
 - [ ] Seed default buckets for user

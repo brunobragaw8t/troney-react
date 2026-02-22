@@ -59,7 +59,29 @@ convex/
   schema.ts                # Database schema
   auth.ts, auth.config.ts  # Auth setup
   http.ts                  # HTTP router
+  users.ts                 # User queries
 ```
+
+## Convex Schema
+
+### Auth tables (from `@convex-dev/auth`)
+
+`users`, `authAccounts`, `authSessions`, `authRefreshTokens`, `authVerificationCodes`, `authVerifiers`, `authRateLimits` — managed by the auth library, do not modify directly.
+
+### `categories`
+
+Expense categories, scoped per user.
+
+| Field    | Type                     | Notes                                     |
+| -------- | ------------------------ | ----------------------------------------- |
+| `userId` | `v.id("users")`          | Owner reference                           |
+| `name`   | `v.string()`             | Category name                             |
+| `color`  | `v.string()`             | Hex color (default `#3b82f6` in mutation) |
+| `icon`   | `v.optional(v.string())` | Optional icon identifier                  |
+
+**Indexes:** `by_userId` on `["userId"]`
+
+**Notes:** `_id` and `_creationTime` are auto-provided by Convex. No `updatedAt`. Default `color` is applied at mutation level, not schema level.
 
 ## TypeScript Configuration
 
