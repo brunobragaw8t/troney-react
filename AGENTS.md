@@ -60,6 +60,7 @@ convex/
   auth.ts, auth.config.ts  # Auth setup
   http.ts                  # HTTP router
   users.ts                 # User queries
+  categories.ts            # Category CRUD (queries + mutations)
 ```
 
 ## Convex Schema
@@ -82,6 +83,23 @@ Expense categories, scoped per user.
 **Indexes:** `by_userId` on `["userId"]`
 
 **Notes:** `_id` and `_creationTime` are auto-provided by Convex. No `updatedAt`. Default `color` is applied at mutation level, not schema level.
+
+## Convex Functions (`convex/categories.ts`)
+
+All category functions are scoped per user via `userId` ownership checks. Mutations use `ConvexError` from `convex/values` for error handling.
+
+| Function         | Type     | Auth | Description                                                |
+| ---------------- | -------- | ---- | ---------------------------------------------------------- |
+| `getCategories`  | query    | soft | Returns user's categories sorted by name, `null` if unauth |
+| `getCategory`    | query    | hard | Returns single category by ID, throws if not found/owned   |
+| `createCategory` | mutation | hard | Creates category, defaults color to `#3b82f6`              |
+| `updateCategory` | mutation | hard | Patches category fields, returns updated doc               |
+| `deleteCategory` | mutation | hard | Deletes category, returns deleted doc                      |
+
+**Auth patterns:**
+
+- Soft: `getAuthUserId(ctx)` → return `null` if unauthenticated
+- Hard: `requireAuth(ctx)` helper → throws `ConvexError("Not authenticated")`
 
 ## TypeScript Configuration
 
