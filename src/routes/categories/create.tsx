@@ -3,6 +3,7 @@ import { useKeyboardShortcuts } from "../../hooks/use-keyboard-shortcuts";
 import { useMemo, useState } from "react";
 import { Alert, type AlertProps } from "../../components/ui/alert/alert";
 import { useMutation } from "convex/react";
+import { ConvexError } from "convex/values";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../../components/ui/button/button";
 import { LuArrowLeft, LuFolder, LuHash, LuPalette } from "react-icons/lu";
@@ -80,14 +81,24 @@ function RouteComponent() {
       return;
     }
 
-    await createCategory({ name, color, icon });
+    try {
+      await createCategory({ name, color, icon });
 
-    setAlert({
-      type: "success",
-      message: "Category created successfully!",
-    });
+      setAlert({
+        type: "success",
+        message: "Category created successfully!",
+      });
 
-    navigate({ to: "/categories" });
+      navigate({ to: "/categories" });
+    } catch (error) {
+      const message =
+        error instanceof ConvexError
+          ? (error.data as string)
+          : "Failed to create category. Please try again.";
+
+      setAlert({ type: "error", message });
+      setLoading(false);
+    }
   }
 
   return (

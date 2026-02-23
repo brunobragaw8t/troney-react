@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
+import { ConvexError } from "convex/values";
 import { useCallback, useMemo, useState } from "react";
 import { LuCirclePlus, LuPencilLine, LuTrash } from "react-icons/lu";
+import { Alert, type AlertProps } from "../../components/ui/alert/alert";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "../../components/ui/button/button";
@@ -38,6 +40,11 @@ function RouteComponent() {
       ],
       [navigate],
     ),
+  });
+
+  const [alert, setAlert] = useState<AlertProps>({
+    type: "error",
+    message: "",
   });
 
   const categories = useQuery(api.categories.getCategories);
@@ -77,14 +84,24 @@ function RouteComponent() {
     if (!categoryToDelete) return;
 
     setIsDeleting(true);
+    setAlert({ type: "error", message: "" });
 
     try {
       await deleteCategory({ id: categoryToDelete.id });
       setDeletionModalOpen(false);
       setCategoryToDelete(null);
-    } finally {
-      setIsDeleting(false);
+    } catch (error) {
+      const message =
+        error instanceof ConvexError
+          ? (error.data as string)
+          : "Failed to delete category. Please try again.";
+
+      setDeletionModalOpen(false);
+      setCategoryToDelete(null);
+      setAlert({ type: "error", message });
     }
+
+    setIsDeleting(false);
   }, [categoryToDelete, deleteCategory]);
 
   const actions: TableRowActions = useMemo(
@@ -112,6 +129,12 @@ function RouteComponent() {
           tooltip={<Keymap text="n" />}
         />
       </div>
+
+      {alert.message && (
+        <div className="mb-4">
+          <Alert type={alert.type} message={alert.message} />
+        </div>
+      )}
 
       {!categories ? (
         <Spinner message="Loading your categories" />
