@@ -28,8 +28,9 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Setup Storybook
 - [x] Add auth
 - [x] Define categories schema
-- [x] Create categories CRUD
+- [x] Create categories CRUD functions
 - [x] Seed default categories for user
+- [x] Create categories CRUD UI
 - [ ] Create wallets CRUD
 - [ ] Seed default wallets for user
 - [ ] Emoji in categories (to serve as icons when minimized)
