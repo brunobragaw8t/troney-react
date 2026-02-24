@@ -34,7 +34,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Define buckets schema
 - [x] Create buckets CRUD functions
 - [ ] Seed default buckets for user
-- [ ] Create buckets CRUD UI
+- [x] Create buckets CRUD UI
 - [ ] Define wallets schema
 - [ ] Create wallets CRUD functions
 - [ ] Seed default wallets for user

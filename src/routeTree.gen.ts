@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ControlPanelIndexRouteImport } from './routes/control-panel/index'
 import { Route as CategoriesIndexRouteImport } from './routes/categories/index'
+import { Route as BucketsIndexRouteImport } from './routes/buckets/index'
 import { Route as CategoriesCreateRouteImport } from './routes/categories/create'
+import { Route as BucketsCreateRouteImport } from './routes/buckets/create'
 import { Route as CategoriesCategoryIdEditRouteImport } from './routes/categories/$categoryId/edit'
+import { Route as BucketsBucketIdEditRouteImport } from './routes/buckets/$bucketId/edit'
 
 const ControlPanelIndexRoute = ControlPanelIndexRouteImport.update({
   id: '/control-panel/',
@@ -24,9 +27,19 @@ const CategoriesIndexRoute = CategoriesIndexRouteImport.update({
   path: '/categories/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BucketsIndexRoute = BucketsIndexRouteImport.update({
+  id: '/buckets/',
+  path: '/buckets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesCreateRoute = CategoriesCreateRouteImport.update({
   id: '/categories/create',
   path: '/categories/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BucketsCreateRoute = BucketsCreateRouteImport.update({
+  id: '/buckets/create',
+  path: '/buckets/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriesCategoryIdEditRoute =
@@ -35,51 +48,77 @@ const CategoriesCategoryIdEditRoute =
     path: '/categories/$categoryId/edit',
     getParentRoute: () => rootRouteImport,
   } as any)
+const BucketsBucketIdEditRoute = BucketsBucketIdEditRouteImport.update({
+  id: '/buckets/$bucketId/edit',
+  path: '/buckets/$bucketId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
 }
 export interface FileRoutesByTo {
+  '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/buckets': typeof BucketsIndexRoute
   '/categories': typeof CategoriesIndexRoute
   '/control-panel': typeof ControlPanelIndexRoute
+  '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/buckets/create'
     | '/categories/create'
+    | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/buckets/create'
     | '/categories/create'
+    | '/buckets'
     | '/categories'
     | '/control-panel'
+    | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
   id:
     | '__root__'
+    | '/buckets/create'
     | '/categories/create'
+    | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  BucketsCreateRoute: typeof BucketsCreateRoute
   CategoriesCreateRoute: typeof CategoriesCreateRoute
+  BucketsIndexRoute: typeof BucketsIndexRoute
   CategoriesIndexRoute: typeof CategoriesIndexRoute
   ControlPanelIndexRoute: typeof ControlPanelIndexRoute
+  BucketsBucketIdEditRoute: typeof BucketsBucketIdEditRoute
   CategoriesCategoryIdEditRoute: typeof CategoriesCategoryIdEditRoute
 }
 
@@ -99,11 +138,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buckets/': {
+      id: '/buckets/'
+      path: '/buckets'
+      fullPath: '/buckets/'
+      preLoaderRoute: typeof BucketsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories/create': {
       id: '/categories/create'
       path: '/categories/create'
       fullPath: '/categories/create'
       preLoaderRoute: typeof CategoriesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buckets/create': {
+      id: '/buckets/create'
+      path: '/buckets/create'
+      fullPath: '/buckets/create'
+      preLoaderRoute: typeof BucketsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/categories/$categoryId/edit': {
@@ -113,13 +166,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriesCategoryIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buckets/$bucketId/edit': {
+      id: '/buckets/$bucketId/edit'
+      path: '/buckets/$bucketId/edit'
+      fullPath: '/buckets/$bucketId/edit'
+      preLoaderRoute: typeof BucketsBucketIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  BucketsCreateRoute: BucketsCreateRoute,
   CategoriesCreateRoute: CategoriesCreateRoute,
+  BucketsIndexRoute: BucketsIndexRoute,
   CategoriesIndexRoute: CategoriesIndexRoute,
   ControlPanelIndexRoute: ControlPanelIndexRoute,
+  BucketsBucketIdEditRoute: BucketsBucketIdEditRoute,
   CategoriesCategoryIdEditRoute: CategoriesCategoryIdEditRoute,
 }
 export const routeTree = rootRouteImport

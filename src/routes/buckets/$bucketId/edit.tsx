@@ -5,18 +5,18 @@ import { useMemo } from "react";
 import { LuArrowLeft } from "react-icons/lu";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
-import { CategoryForm } from "../../../components/categories/category-form";
+import { BucketForm } from "../../../components/buckets/bucket-form";
 import { Button } from "../../../components/ui/button/button";
 import { Spinner } from "../../../components/ui/spinner/spinner";
 import { useKeyboardShortcuts } from "../../../hooks/use-keyboard-shortcuts";
 
-export const Route = createFileRoute("/categories/$categoryId/edit")({
+export const Route = createFileRoute("/buckets/$bucketId/edit")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const params = Route.useParams();
-  const categoryId = params.categoryId as Id<"categories">;
+  const bucketId = params.bucketId as Id<"buckets">;
   const navigate = useNavigate();
 
   useKeyboardShortcuts({
@@ -25,7 +25,7 @@ function RouteComponent() {
         {
           key: "Escape",
           action: () => {
-            navigate({ to: "/categories" });
+            navigate({ to: "/buckets" });
           },
         },
       ],
@@ -34,33 +34,28 @@ function RouteComponent() {
   });
 
   function handleGoBack() {
-    navigate({ to: "/categories" });
+    navigate({ to: "/buckets" });
   }
 
-  const category = useQuery(api.categories.getCategory, {
-    id: categoryId,
+  const bucket = useQuery(api.buckets.getBucket, {
+    id: bucketId,
   });
 
-  const updateCategory = useMutation(api.categories.updateCategory);
+  const updateBucket = useMutation(api.buckets.updateBucket);
 
-  async function handleSubmit(data: {
-    name: string;
-    color: string;
-    icon: string;
-  }) {
+  async function handleSubmit(data: { name: string; budget: number }) {
     try {
-      await updateCategory({
-        id: categoryId,
+      await updateBucket({
+        id: bucketId,
         name: data.name,
-        color: data.color,
-        icon: data.icon,
+        budget: data.budget,
       });
-      navigate({ to: "/categories" });
+      navigate({ to: "/buckets" });
     } catch (error) {
       const message =
         error instanceof ConvexError
           ? (error.data as string)
-          : "Failed to update category. Please try again.";
+          : "Failed to update bucket. Please try again.";
       throw new Error(message);
     }
   }
@@ -77,20 +72,18 @@ function RouteComponent() {
           onClick={handleGoBack}
         />
 
-        <h1 className="text-3xl font-bold text-white">Edit category</h1>
+        <h1 className="text-3xl font-bold text-white">Edit bucket</h1>
       </div>
 
-      <p className="mb-8 text-secondary-4">
-        Update the details of your category
-      </p>
+      <p className="mb-8 text-secondary-4">Update the details of your bucket</p>
 
-      {category === undefined ? (
-        <Spinner message="Loading category" />
+      {bucket === undefined ? (
+        <Spinner message="Loading bucket" />
       ) : (
-        <CategoryForm
-          initialName={category.name}
-          initialColor={category.color}
-          initialIcon={category.icon ?? ""}
+        <BucketForm
+          initialName={bucket.name}
+          initialBudget={bucket.budget}
+          showBalance={false}
           submitLabel="Save changes"
           onSubmit={handleSubmit}
         />
