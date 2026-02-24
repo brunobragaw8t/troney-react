@@ -32,7 +32,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Seed default categories for user
 - [x] Create categories CRUD UI
 - [x] Define buckets schema
-- [ ] Create buckets CRUD functions
+- [x] Create buckets CRUD functions
 - [ ] Seed default buckets for user
 - [ ] Create buckets CRUD UI
 - [ ] Define wallets schema

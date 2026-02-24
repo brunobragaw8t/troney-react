@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
-import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
+import { requireAuth } from "./auth";
 
 export const DEFAULT_CATEGORIES = [
   { name: "Food", icon: "🥗", color: "#10b981" },
@@ -16,16 +16,6 @@ export const DEFAULT_CATEGORIES = [
   { name: "Investments", icon: "📈", color: "#059669" },
   { name: "Other", icon: "❓", color: "#6b7280" },
 ] as const;
-
-async function requireAuth(ctx: QueryCtx | MutationCtx) {
-  const userId = await getAuthUserId(ctx);
-
-  if (!userId) {
-    throw new ConvexError("Not authenticated");
-  }
-
-  return userId;
-}
 
 export const getCategories = query({
   args: {},
