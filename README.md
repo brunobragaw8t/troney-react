@@ -31,20 +31,27 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Create categories CRUD functions
 - [x] Seed default categories for user
 - [x] Create categories CRUD UI
-- [ ] Create wallets CRUD
-- [ ] Seed default wallets for user
-- [ ] Emoji in categories (to serve as icons when minimized)
-- [ ] Create buckets CRUD
+- [x] Define buckets schema
+- [ ] Create buckets CRUD functions
 - [ ] Seed default buckets for user
-- [ ] Create earnings CRUD
+- [ ] Create buckets CRUD UI
+- [ ] Define wallets schema
+- [ ] Create wallets CRUD functions
+- [ ] Seed default wallets for user
+- [ ] Create wallets CRUD UI
+- [ ] Define earnings schema
+- [ ] Create earnings CRUD functions
+- [ ] Create earnings CRUD UI
+- [ ] Define expenses schema
+- [ ] Create expenses CRUD functions
+- [ ] Create expenses CRUD UI
+- [ ] Define movements schema
+- [ ] Create movements CRUD functions
+- [ ] Create movements CRUD UI
 - [ ] Prevent registering earnings if buckets aren't 100%
-- [ ] Create expenses CRUD
-- [ ] Create movements CRUD
-- [ ] Format currency consistently
 - [ ] Paginate data tables
 - [ ] Add autocomplete of previously registered expenses, with price
 - [ ] View history of prices
-- [ ] Keyboard navigation in lists
 - [ ] Charts per month, trimester, semester and year
 - [ ] Switch between pie and bar chart
 - [ ] OCR

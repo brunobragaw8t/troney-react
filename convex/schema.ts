@@ -10,4 +10,10 @@ export default defineSchema({
     color: v.string(),
     icon: v.optional(v.string()),
   }).index("by_userId", ["userId"]),
+  buckets: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    budget: v.number(),
+    balance: v.number(), // integer cents
+  }).index("by_userId", ["userId"]),
 });
