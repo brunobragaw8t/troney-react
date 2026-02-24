@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    value: 1234.56,
+    value: 123456,
   },
 };
 
@@ -36,12 +36,12 @@ export const Zero: Story = {
 
 export const Negative: Story = {
   args: {
-    value: -500.25,
+    value: -50025,
   },
 };
 
 export const Large: Story = {
   args: {
-    value: 1234567.89,
+    value: 123456789,
   },
 };

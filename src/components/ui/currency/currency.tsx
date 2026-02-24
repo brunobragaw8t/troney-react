@@ -12,5 +12,5 @@ export function Currency({ value }: CurrencyProps) {
     return <span>€••••••</span>;
   }
 
-  return <span>{currency(value)}</span>;
+  return <span>{currency(value / 100)}</span>;
 }
