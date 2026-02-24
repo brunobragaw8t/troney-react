@@ -3,6 +3,14 @@ import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuth } from "./auth";
 
+export const DEFAULT_BUCKETS = [
+  { name: "Necessities", budget: 60, balance: 0 },
+  { name: "Investing", budget: 10, balance: 0 },
+  { name: "Learning", budget: 10, balance: 0 },
+  { name: "Emergency", budget: 10, balance: 0 },
+  { name: "Fun", budget: 10, balance: 0 },
+] as const;
+
 export const getBuckets = query({
   args: {},
   handler: async (ctx) => {
