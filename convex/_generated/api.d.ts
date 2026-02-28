@@ -13,6 +13,7 @@ import type * as buckets from "../buckets.js";
 import type * as categories from "../categories.js";
 import type * as http from "../http.js";
 import type * as users from "../users.js";
+import type * as wallets from "../wallets.js";
 
 import type {
   ApiFromModules,
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   categories: typeof categories;
   http: typeof http;
   users: typeof users;
+  wallets: typeof wallets;
 }>;
 
 /**

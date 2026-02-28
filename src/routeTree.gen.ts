@@ -9,14 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WalletsIndexRouteImport } from './routes/wallets/index'
 import { Route as ControlPanelIndexRouteImport } from './routes/control-panel/index'
 import { Route as CategoriesIndexRouteImport } from './routes/categories/index'
 import { Route as BucketsIndexRouteImport } from './routes/buckets/index'
+import { Route as WalletsCreateRouteImport } from './routes/wallets/create'
 import { Route as CategoriesCreateRouteImport } from './routes/categories/create'
 import { Route as BucketsCreateRouteImport } from './routes/buckets/create'
+import { Route as WalletsWalletIdEditRouteImport } from './routes/wallets/$walletId/edit'
 import { Route as CategoriesCategoryIdEditRouteImport } from './routes/categories/$categoryId/edit'
 import { Route as BucketsBucketIdEditRouteImport } from './routes/buckets/$bucketId/edit'
 
+const WalletsIndexRoute = WalletsIndexRouteImport.update({
+  id: '/wallets/',
+  path: '/wallets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ControlPanelIndexRoute = ControlPanelIndexRouteImport.update({
   id: '/control-panel/',
   path: '/control-panel/',
@@ -32,6 +40,11 @@ const BucketsIndexRoute = BucketsIndexRouteImport.update({
   path: '/buckets/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WalletsCreateRoute = WalletsCreateRouteImport.update({
+  id: '/wallets/create',
+  path: '/wallets/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesCreateRoute = CategoriesCreateRouteImport.update({
   id: '/categories/create',
   path: '/categories/create',
@@ -40,6 +53,11 @@ const CategoriesCreateRoute = CategoriesCreateRouteImport.update({
 const BucketsCreateRoute = BucketsCreateRouteImport.update({
   id: '/buckets/create',
   path: '/buckets/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WalletsWalletIdEditRoute = WalletsWalletIdEditRouteImport.update({
+  id: '/wallets/$walletId/edit',
+  path: '/wallets/$walletId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriesCategoryIdEditRoute =
@@ -57,73 +75,101 @@ const BucketsBucketIdEditRoute = BucketsBucketIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/wallets/create': typeof WalletsCreateRoute
   '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRoutesByTo {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/wallets/create': typeof WalletsCreateRoute
   '/buckets': typeof BucketsIndexRoute
   '/categories': typeof CategoriesIndexRoute
   '/control-panel': typeof ControlPanelIndexRoute
+  '/wallets': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/wallets/create': typeof WalletsCreateRoute
   '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/buckets/create'
     | '/categories/create'
+    | '/wallets/create'
     | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/wallets/$walletId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/buckets/create'
     | '/categories/create'
+    | '/wallets/create'
     | '/buckets'
     | '/categories'
     | '/control-panel'
+    | '/wallets'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/wallets/$walletId/edit'
   id:
     | '__root__'
     | '/buckets/create'
     | '/categories/create'
+    | '/wallets/create'
     | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/wallets/$walletId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   BucketsCreateRoute: typeof BucketsCreateRoute
   CategoriesCreateRoute: typeof CategoriesCreateRoute
+  WalletsCreateRoute: typeof WalletsCreateRoute
   BucketsIndexRoute: typeof BucketsIndexRoute
   CategoriesIndexRoute: typeof CategoriesIndexRoute
   ControlPanelIndexRoute: typeof ControlPanelIndexRoute
+  WalletsIndexRoute: typeof WalletsIndexRoute
   BucketsBucketIdEditRoute: typeof BucketsBucketIdEditRoute
   CategoriesCategoryIdEditRoute: typeof CategoriesCategoryIdEditRoute
+  WalletsWalletIdEditRoute: typeof WalletsWalletIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wallets/': {
+      id: '/wallets/'
+      path: '/wallets'
+      fullPath: '/wallets/'
+      preLoaderRoute: typeof WalletsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/control-panel/': {
       id: '/control-panel/'
       path: '/control-panel'
@@ -145,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BucketsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wallets/create': {
+      id: '/wallets/create'
+      path: '/wallets/create'
+      fullPath: '/wallets/create'
+      preLoaderRoute: typeof WalletsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories/create': {
       id: '/categories/create'
       path: '/categories/create'
@@ -157,6 +210,13 @@ declare module '@tanstack/react-router' {
       path: '/buckets/create'
       fullPath: '/buckets/create'
       preLoaderRoute: typeof BucketsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wallets/$walletId/edit': {
+      id: '/wallets/$walletId/edit'
+      path: '/wallets/$walletId/edit'
+      fullPath: '/wallets/$walletId/edit'
+      preLoaderRoute: typeof WalletsWalletIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/categories/$categoryId/edit': {
@@ -179,11 +239,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   BucketsCreateRoute: BucketsCreateRoute,
   CategoriesCreateRoute: CategoriesCreateRoute,
+  WalletsCreateRoute: WalletsCreateRoute,
   BucketsIndexRoute: BucketsIndexRoute,
   CategoriesIndexRoute: CategoriesIndexRoute,
   ControlPanelIndexRoute: ControlPanelIndexRoute,
+  WalletsIndexRoute: WalletsIndexRoute,
   BucketsBucketIdEditRoute: BucketsBucketIdEditRoute,
   CategoriesCategoryIdEditRoute: CategoriesCategoryIdEditRoute,
+  WalletsWalletIdEditRoute: WalletsWalletIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -4,6 +4,7 @@ import { ConvexError } from "convex/values";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { DEFAULT_BUCKETS } from "./buckets";
 import { DEFAULT_CATEGORIES } from "./categories";
+import { DEFAULT_WALLETS } from "./wallets";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Google],
@@ -22,6 +23,12 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
           ctx.db.insert("buckets", {
             userId: args.userId,
             ...bucket,
+          }),
+        ),
+        ...DEFAULT_WALLETS.map((wallet) =>
+          ctx.db.insert("wallets", {
+            userId: args.userId,
+            ...wallet,
           }),
         ),
       ]);

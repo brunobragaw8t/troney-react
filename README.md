@@ -35,10 +35,10 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Create buckets CRUD functions
 - [x] Seed default buckets for user
 - [x] Create buckets CRUD UI
-- [ ] Define wallets schema
-- [ ] Create wallets CRUD functions
-- [ ] Seed default wallets for user
-- [ ] Create wallets CRUD UI
+- [x] Define wallets schema
+- [x] Create wallets CRUD functions
+- [x] Seed default wallets for user
+- [x] Create wallets CRUD UI
 - [ ] Define earnings schema
 - [ ] Create earnings CRUD functions
 - [ ] Create earnings CRUD UI

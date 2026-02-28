@@ -16,4 +16,9 @@ export default defineSchema({
     budget: v.number(),
     balance: v.number(), // integer cents
   }).index("by_userId", ["userId"]),
+  wallets: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    balance: v.number(), // integer cents
+  }).index("by_userId", ["userId"]),
 });
