@@ -12,6 +12,7 @@ import type * as auth from "../auth.js";
 import type * as buckets from "../buckets.js";
 import type * as categories from "../categories.js";
 import type * as http from "../http.js";
+import type * as movements from "../movements.js";
 import type * as users from "../users.js";
 import type * as wallets from "../wallets.js";
 
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   buckets: typeof buckets;
   categories: typeof categories;
   http: typeof http;
+  movements: typeof movements;
   users: typeof users;
   wallets: typeof wallets;
 }>;

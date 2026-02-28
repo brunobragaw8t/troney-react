@@ -21,4 +21,11 @@ export default defineSchema({
     name: v.string(),
     balance: v.number(), // integer cents
   }).index("by_userId", ["userId"]),
+  movements: defineTable({
+    userId: v.id("users"),
+    walletIdSource: v.optional(v.id("wallets")),
+    walletIdTarget: v.optional(v.id("wallets")),
+    value: v.number(), // integer cents
+    date: v.string(), // ISO date string YYYY-MM-DD
+  }).index("by_userId", ["userId"]),
 });

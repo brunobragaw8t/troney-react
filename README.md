@@ -45,9 +45,9 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [ ] Define expenses schema
 - [ ] Create expenses CRUD functions
 - [ ] Create expenses CRUD UI
-- [ ] Define movements schema
-- [ ] Create movements CRUD functions
-- [ ] Create movements CRUD UI
+- [x] Define movements schema
+- [x] Create movements CRUD functions
+- [x] Create movements CRUD UI
 - [ ] Prevent registering earnings if buckets aren't 100%
 - [ ] Paginate data tables
 - [ ] Add autocomplete of previously registered expenses, with price

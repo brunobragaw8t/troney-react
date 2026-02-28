@@ -10,19 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletsIndexRouteImport } from './routes/wallets/index'
+import { Route as MovementsIndexRouteImport } from './routes/movements/index'
 import { Route as ControlPanelIndexRouteImport } from './routes/control-panel/index'
 import { Route as CategoriesIndexRouteImport } from './routes/categories/index'
 import { Route as BucketsIndexRouteImport } from './routes/buckets/index'
 import { Route as WalletsCreateRouteImport } from './routes/wallets/create'
+import { Route as MovementsCreateRouteImport } from './routes/movements/create'
 import { Route as CategoriesCreateRouteImport } from './routes/categories/create'
 import { Route as BucketsCreateRouteImport } from './routes/buckets/create'
 import { Route as WalletsWalletIdEditRouteImport } from './routes/wallets/$walletId/edit'
+import { Route as MovementsMovementIdEditRouteImport } from './routes/movements/$movementId/edit'
 import { Route as CategoriesCategoryIdEditRouteImport } from './routes/categories/$categoryId/edit'
 import { Route as BucketsBucketIdEditRouteImport } from './routes/buckets/$bucketId/edit'
 
 const WalletsIndexRoute = WalletsIndexRouteImport.update({
   id: '/wallets/',
   path: '/wallets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovementsIndexRoute = MovementsIndexRouteImport.update({
+  id: '/movements/',
+  path: '/movements/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ControlPanelIndexRoute = ControlPanelIndexRouteImport.update({
@@ -45,6 +53,11 @@ const WalletsCreateRoute = WalletsCreateRouteImport.update({
   path: '/wallets/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MovementsCreateRoute = MovementsCreateRouteImport.update({
+  id: '/movements/create',
+  path: '/movements/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesCreateRoute = CategoriesCreateRouteImport.update({
   id: '/categories/create',
   path: '/categories/create',
@@ -58,6 +71,11 @@ const BucketsCreateRoute = BucketsCreateRouteImport.update({
 const WalletsWalletIdEditRoute = WalletsWalletIdEditRouteImport.update({
   id: '/wallets/$walletId/edit',
   path: '/wallets/$walletId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovementsMovementIdEditRoute = MovementsMovementIdEditRouteImport.update({
+  id: '/movements/$movementId/edit',
+  path: '/movements/$movementId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriesCategoryIdEditRoute =
@@ -75,38 +93,47 @@ const BucketsBucketIdEditRoute = BucketsBucketIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
   '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/movements/': typeof MovementsIndexRoute
   '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRoutesByTo {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
   '/buckets': typeof BucketsIndexRoute
   '/categories': typeof CategoriesIndexRoute
   '/control-panel': typeof ControlPanelIndexRoute
+  '/movements': typeof MovementsIndexRoute
   '/wallets': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
   '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/movements/': typeof MovementsIndexRoute
   '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRouteTypes {
@@ -114,50 +141,62 @@ export interface FileRouteTypes {
   fullPaths:
     | '/buckets/create'
     | '/categories/create'
+    | '/movements/create'
     | '/wallets/create'
     | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/movements/'
     | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/buckets/create'
     | '/categories/create'
+    | '/movements/create'
     | '/wallets/create'
     | '/buckets'
     | '/categories'
     | '/control-panel'
+    | '/movements'
     | '/wallets'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
   id:
     | '__root__'
     | '/buckets/create'
     | '/categories/create'
+    | '/movements/create'
     | '/wallets/create'
     | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/movements/'
     | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   BucketsCreateRoute: typeof BucketsCreateRoute
   CategoriesCreateRoute: typeof CategoriesCreateRoute
+  MovementsCreateRoute: typeof MovementsCreateRoute
   WalletsCreateRoute: typeof WalletsCreateRoute
   BucketsIndexRoute: typeof BucketsIndexRoute
   CategoriesIndexRoute: typeof CategoriesIndexRoute
   ControlPanelIndexRoute: typeof ControlPanelIndexRoute
+  MovementsIndexRoute: typeof MovementsIndexRoute
   WalletsIndexRoute: typeof WalletsIndexRoute
   BucketsBucketIdEditRoute: typeof BucketsBucketIdEditRoute
   CategoriesCategoryIdEditRoute: typeof CategoriesCategoryIdEditRoute
+  MovementsMovementIdEditRoute: typeof MovementsMovementIdEditRoute
   WalletsWalletIdEditRoute: typeof WalletsWalletIdEditRoute
 }
 
@@ -168,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/wallets'
       fullPath: '/wallets/'
       preLoaderRoute: typeof WalletsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movements/': {
+      id: '/movements/'
+      path: '/movements'
+      fullPath: '/movements/'
+      preLoaderRoute: typeof MovementsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/control-panel/': {
@@ -198,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/movements/create': {
+      id: '/movements/create'
+      path: '/movements/create'
+      fullPath: '/movements/create'
+      preLoaderRoute: typeof MovementsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories/create': {
       id: '/categories/create'
       path: '/categories/create'
@@ -217,6 +270,13 @@ declare module '@tanstack/react-router' {
       path: '/wallets/$walletId/edit'
       fullPath: '/wallets/$walletId/edit'
       preLoaderRoute: typeof WalletsWalletIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movements/$movementId/edit': {
+      id: '/movements/$movementId/edit'
+      path: '/movements/$movementId/edit'
+      fullPath: '/movements/$movementId/edit'
+      preLoaderRoute: typeof MovementsMovementIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/categories/$categoryId/edit': {
@@ -239,13 +299,16 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   BucketsCreateRoute: BucketsCreateRoute,
   CategoriesCreateRoute: CategoriesCreateRoute,
+  MovementsCreateRoute: MovementsCreateRoute,
   WalletsCreateRoute: WalletsCreateRoute,
   BucketsIndexRoute: BucketsIndexRoute,
   CategoriesIndexRoute: CategoriesIndexRoute,
   ControlPanelIndexRoute: ControlPanelIndexRoute,
+  MovementsIndexRoute: MovementsIndexRoute,
   WalletsIndexRoute: WalletsIndexRoute,
   BucketsBucketIdEditRoute: BucketsBucketIdEditRoute,
   CategoriesCategoryIdEditRoute: CategoriesCategoryIdEditRoute,
+  MovementsMovementIdEditRoute: MovementsMovementIdEditRoute,
   WalletsWalletIdEditRoute: WalletsWalletIdEditRoute,
 }
 export const routeTree = rootRouteImport
