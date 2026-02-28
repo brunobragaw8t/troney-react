@@ -137,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
   '/earnings/': typeof EarningsIndexRoute
+  '/expenses/': typeof ExpensesIndexRoute
   '/movements/': typeof MovementsIndexRoute
   '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
