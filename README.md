@@ -44,9 +44,9 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Define earnings schema
 - [x] Create earnings CRUD functions
 - [x] Create earnings CRUD UI
-- [ ] Define expenses schema
-- [ ] Create expenses CRUD functions
-- [ ] Create expenses CRUD UI
+- [x] Define expenses schema
+- [x] Create expenses CRUD functions
+- [x] Create expenses CRUD UI
 - [x] Define movements schema
 - [x] Create movements CRUD functions
 - [x] Create movements CRUD UI
