@@ -11,15 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletsIndexRouteImport } from './routes/wallets/index'
 import { Route as MovementsIndexRouteImport } from './routes/movements/index'
+import { Route as EarningsIndexRouteImport } from './routes/earnings/index'
 import { Route as ControlPanelIndexRouteImport } from './routes/control-panel/index'
 import { Route as CategoriesIndexRouteImport } from './routes/categories/index'
 import { Route as BucketsIndexRouteImport } from './routes/buckets/index'
 import { Route as WalletsCreateRouteImport } from './routes/wallets/create'
 import { Route as MovementsCreateRouteImport } from './routes/movements/create'
+import { Route as EarningsCreateRouteImport } from './routes/earnings/create'
 import { Route as CategoriesCreateRouteImport } from './routes/categories/create'
 import { Route as BucketsCreateRouteImport } from './routes/buckets/create'
 import { Route as WalletsWalletIdEditRouteImport } from './routes/wallets/$walletId/edit'
 import { Route as MovementsMovementIdEditRouteImport } from './routes/movements/$movementId/edit'
+import { Route as EarningsEarningIdEditRouteImport } from './routes/earnings/$earningId/edit'
 import { Route as CategoriesCategoryIdEditRouteImport } from './routes/categories/$categoryId/edit'
 import { Route as BucketsBucketIdEditRouteImport } from './routes/buckets/$bucketId/edit'
 
@@ -31,6 +34,11 @@ const WalletsIndexRoute = WalletsIndexRouteImport.update({
 const MovementsIndexRoute = MovementsIndexRouteImport.update({
   id: '/movements/',
   path: '/movements/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EarningsIndexRoute = EarningsIndexRouteImport.update({
+  id: '/earnings/',
+  path: '/earnings/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ControlPanelIndexRoute = ControlPanelIndexRouteImport.update({
@@ -58,6 +66,11 @@ const MovementsCreateRoute = MovementsCreateRouteImport.update({
   path: '/movements/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EarningsCreateRoute = EarningsCreateRouteImport.update({
+  id: '/earnings/create',
+  path: '/earnings/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesCreateRoute = CategoriesCreateRouteImport.update({
   id: '/categories/create',
   path: '/categories/create',
@@ -78,6 +91,11 @@ const MovementsMovementIdEditRoute = MovementsMovementIdEditRouteImport.update({
   path: '/movements/$movementId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EarningsEarningIdEditRoute = EarningsEarningIdEditRouteImport.update({
+  id: '/earnings/$earningId/edit',
+  path: '/earnings/$earningId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesCategoryIdEditRoute =
   CategoriesCategoryIdEditRouteImport.update({
     id: '/categories/$categoryId/edit',
@@ -93,30 +111,36 @@ const BucketsBucketIdEditRoute = BucketsBucketIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/earnings/create': typeof EarningsCreateRoute
   '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
   '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/earnings/': typeof EarningsIndexRoute
   '/movements/': typeof MovementsIndexRoute
   '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/earnings/$earningId/edit': typeof EarningsEarningIdEditRoute
   '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRoutesByTo {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/earnings/create': typeof EarningsCreateRoute
   '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
   '/buckets': typeof BucketsIndexRoute
   '/categories': typeof CategoriesIndexRoute
   '/control-panel': typeof ControlPanelIndexRoute
+  '/earnings': typeof EarningsIndexRoute
   '/movements': typeof MovementsIndexRoute
   '/wallets': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/earnings/$earningId/edit': typeof EarningsEarningIdEditRoute
   '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
@@ -124,15 +148,18 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
+  '/earnings/create': typeof EarningsCreateRoute
   '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
   '/buckets/': typeof BucketsIndexRoute
   '/categories/': typeof CategoriesIndexRoute
   '/control-panel/': typeof ControlPanelIndexRoute
+  '/earnings/': typeof EarningsIndexRoute
   '/movements/': typeof MovementsIndexRoute
   '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
+  '/earnings/$earningId/edit': typeof EarningsEarningIdEditRoute
   '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
@@ -141,45 +168,54 @@ export interface FileRouteTypes {
   fullPaths:
     | '/buckets/create'
     | '/categories/create'
+    | '/earnings/create'
     | '/movements/create'
     | '/wallets/create'
     | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/earnings/'
     | '/movements/'
     | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/earnings/$earningId/edit'
     | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/buckets/create'
     | '/categories/create'
+    | '/earnings/create'
     | '/movements/create'
     | '/wallets/create'
     | '/buckets'
     | '/categories'
     | '/control-panel'
+    | '/earnings'
     | '/movements'
     | '/wallets'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/earnings/$earningId/edit'
     | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
   id:
     | '__root__'
     | '/buckets/create'
     | '/categories/create'
+    | '/earnings/create'
     | '/movements/create'
     | '/wallets/create'
     | '/buckets/'
     | '/categories/'
     | '/control-panel/'
+    | '/earnings/'
     | '/movements/'
     | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
+    | '/earnings/$earningId/edit'
     | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
   fileRoutesById: FileRoutesById
@@ -187,15 +223,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   BucketsCreateRoute: typeof BucketsCreateRoute
   CategoriesCreateRoute: typeof CategoriesCreateRoute
+  EarningsCreateRoute: typeof EarningsCreateRoute
   MovementsCreateRoute: typeof MovementsCreateRoute
   WalletsCreateRoute: typeof WalletsCreateRoute
   BucketsIndexRoute: typeof BucketsIndexRoute
   CategoriesIndexRoute: typeof CategoriesIndexRoute
   ControlPanelIndexRoute: typeof ControlPanelIndexRoute
+  EarningsIndexRoute: typeof EarningsIndexRoute
   MovementsIndexRoute: typeof MovementsIndexRoute
   WalletsIndexRoute: typeof WalletsIndexRoute
   BucketsBucketIdEditRoute: typeof BucketsBucketIdEditRoute
   CategoriesCategoryIdEditRoute: typeof CategoriesCategoryIdEditRoute
+  EarningsEarningIdEditRoute: typeof EarningsEarningIdEditRoute
   MovementsMovementIdEditRoute: typeof MovementsMovementIdEditRoute
   WalletsWalletIdEditRoute: typeof WalletsWalletIdEditRoute
 }
@@ -214,6 +253,13 @@ declare module '@tanstack/react-router' {
       path: '/movements'
       fullPath: '/movements/'
       preLoaderRoute: typeof MovementsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/earnings/': {
+      id: '/earnings/'
+      path: '/earnings'
+      fullPath: '/earnings/'
+      preLoaderRoute: typeof EarningsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/control-panel/': {
@@ -251,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MovementsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/earnings/create': {
+      id: '/earnings/create'
+      path: '/earnings/create'
+      fullPath: '/earnings/create'
+      preLoaderRoute: typeof EarningsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories/create': {
       id: '/categories/create'
       path: '/categories/create'
@@ -279,6 +332,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MovementsMovementIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/earnings/$earningId/edit': {
+      id: '/earnings/$earningId/edit'
+      path: '/earnings/$earningId/edit'
+      fullPath: '/earnings/$earningId/edit'
+      preLoaderRoute: typeof EarningsEarningIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories/$categoryId/edit': {
       id: '/categories/$categoryId/edit'
       path: '/categories/$categoryId/edit'
@@ -299,15 +359,18 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   BucketsCreateRoute: BucketsCreateRoute,
   CategoriesCreateRoute: CategoriesCreateRoute,
+  EarningsCreateRoute: EarningsCreateRoute,
   MovementsCreateRoute: MovementsCreateRoute,
   WalletsCreateRoute: WalletsCreateRoute,
   BucketsIndexRoute: BucketsIndexRoute,
   CategoriesIndexRoute: CategoriesIndexRoute,
   ControlPanelIndexRoute: ControlPanelIndexRoute,
+  EarningsIndexRoute: EarningsIndexRoute,
   MovementsIndexRoute: MovementsIndexRoute,
   WalletsIndexRoute: WalletsIndexRoute,
   BucketsBucketIdEditRoute: BucketsBucketIdEditRoute,
   CategoriesCategoryIdEditRoute: CategoriesCategoryIdEditRoute,
+  EarningsEarningIdEditRoute: EarningsEarningIdEditRoute,
   MovementsMovementIdEditRoute: MovementsMovementIdEditRoute,
   WalletsWalletIdEditRoute: WalletsWalletIdEditRoute,
 }

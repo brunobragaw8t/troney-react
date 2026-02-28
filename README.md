@@ -39,16 +39,17 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Create wallets CRUD functions
 - [x] Seed default wallets for user
 - [x] Create wallets CRUD UI
-- [ ] Define earnings schema
-- [ ] Create earnings CRUD functions
-- [ ] Create earnings CRUD UI
+- [x] Define earnings schema
+- [x] Create earnings CRUD functions
+- [x] Create earnings CRUD UI
 - [ ] Define expenses schema
 - [ ] Create expenses CRUD functions
 - [ ] Create expenses CRUD UI
 - [x] Define movements schema
 - [x] Create movements CRUD functions
 - [x] Create movements CRUD UI
-- [ ] Prevent registering earnings if buckets aren't 100%
+- [x] Add control panel
+- [x] Prevent registering earnings if buckets aren't 100%
 - [ ] Paginate data tables
 - [ ] Add autocomplete of previously registered expenses, with price
 - [ ] View history of prices
