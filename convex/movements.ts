@@ -52,7 +52,7 @@ export const createMovement = mutation({
   args: {
     walletIdSource: v.optional(v.id("wallets")),
     walletIdTarget: v.optional(v.id("wallets")),
-    value: v.number(), // integer cents
+    value: v.number(),
     date: v.string(),
   },
   handler: async (ctx, args) => {

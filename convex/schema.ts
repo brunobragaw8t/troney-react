@@ -14,12 +14,12 @@ export default defineSchema({
     userId: v.id("users"),
     name: v.string(),
     budget: v.number(),
-    balance: v.number(), // integer cents
+    balance: v.number(),
   }).index("by_userId", ["userId"]),
   wallets: defineTable({
     userId: v.id("users"),
     name: v.string(),
-    balance: v.number(), // integer cents
+    balance: v.number(),
   }).index("by_userId", ["userId"]),
   earnings: defineTable({
     userId: v.id("users"),
@@ -42,7 +42,7 @@ export default defineSchema({
     userId: v.id("users"),
     walletIdSource: v.optional(v.id("wallets")),
     walletIdTarget: v.optional(v.id("wallets")),
-    value: v.number(), // integer cents
-    date: v.string(), // ISO date string YYYY-MM-DD
+    value: v.number(),
+    date: v.string(),
   }).index("by_userId", ["userId"]),
 });

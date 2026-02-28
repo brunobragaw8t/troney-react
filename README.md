@@ -2,17 +2,19 @@
 
 ## Overview
 
-Reworking this in React. Original project [made with Nuxt](https://github.com/brunobragaw8t/troney).
-
 Troney (word-play for tracking money) is an expense tracker web app focused on a
 simple and fast UI to keep my life on track.
+
+This project started as a spreadsheet, then moved to WordPress, evolved into a
+[Nuxt app](https://github.com/brunobragaw8t/troney), got reworked and redesigned
+in [Next.js](https://github.com/brunobragaw8t/troney-next) and finally migrated
+to a blazingly fast React SPA, powered by Convex.
 
 Some of its features are:
 
 - Record earnings, expenses and movements;
 - Separate money by wallets;
 - Organize expenses with buckets and categories;
-- Monthly graphs;
 - Keyboard shortcuts for navigating the UI.
 
 Here's a [demo](https://troney.vercel.app/),
@@ -51,6 +53,8 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Add control panel
 - [x] Prevent registering earnings if buckets aren't 100%
 - [ ] Paginate data tables
+- [ ] Add profile page
+- [ ] Allow to delete account
 - [ ] Add autocomplete of previously registered expenses, with price
 - [ ] View history of prices
 - [ ] Charts per month, trimester, semester and year
