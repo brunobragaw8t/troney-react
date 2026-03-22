@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as WalletsIndexRouteImport } from './routes/wallets/index'
 import { Route as MovementsIndexRouteImport } from './routes/movements/index'
 import { Route as ExpensesIndexRouteImport } from './routes/expenses/index'
@@ -29,6 +30,11 @@ import { Route as EarningsEarningIdEditRouteImport } from './routes/earnings/$ea
 import { Route as CategoriesCategoryIdEditRouteImport } from './routes/categories/$categoryId/edit'
 import { Route as BucketsBucketIdEditRouteImport } from './routes/buckets/$bucketId/edit'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WalletsIndexRoute = WalletsIndexRouteImport.update({
   id: '/wallets/',
   path: '/wallets/',
@@ -127,6 +133,7 @@ const BucketsBucketIdEditRoute = BucketsBucketIdEditRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
   '/earnings/create': typeof EarningsCreateRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
   '/earnings/create': typeof EarningsCreateRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
   '/earnings/create': typeof EarningsCreateRoute
@@ -193,6 +202,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/buckets/create'
     | '/categories/create'
     | '/earnings/create'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/wallets/$walletId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/buckets/create'
     | '/categories/create'
     | '/earnings/create'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/wallets/$walletId/edit'
   id:
     | '__root__'
+    | '/'
     | '/buckets/create'
     | '/categories/create'
     | '/earnings/create'
@@ -257,6 +269,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   BucketsCreateRoute: typeof BucketsCreateRoute
   CategoriesCreateRoute: typeof CategoriesCreateRoute
   EarningsCreateRoute: typeof EarningsCreateRoute
@@ -280,6 +293,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wallets/': {
       id: '/wallets/'
       path: '/wallets'
@@ -417,6 +437,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   BucketsCreateRoute: BucketsCreateRoute,
   CategoriesCreateRoute: CategoriesCreateRoute,
   EarningsCreateRoute: EarningsCreateRoute,
