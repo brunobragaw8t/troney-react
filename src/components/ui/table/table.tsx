@@ -8,6 +8,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -127,7 +128,16 @@ export function TableRow({
   rowIndex?: number;
   actions?: TableRowActions;
 }) {
+  const rowRef = useRef<HTMLTableRowElement>(null);
   const { focusedRow, setFocusedRow } = useContext(TableContext);
+
+  const isFocused = rowIndex !== undefined && focusedRow === rowIndex;
+
+  useEffect(() => {
+    if (isFocused) {
+      rowRef.current?.scrollIntoView({ block: "nearest", behavior: "instant" });
+    }
+  }, [isFocused]);
 
   const handleMouseEnter = useCallback(() => {
     if (rowIndex === undefined) return;
@@ -164,8 +174,9 @@ export function TableRow({
 
   return (
     <tr
+      ref={rowRef}
       className={cn(
-        `border-b border-secondary-3 last:border-0 ${focusedRow === rowIndex && "bg-primary-1/5"}`,
+        `scroll-mb-40 scroll-mt-40 border-b border-secondary-3 last:border-0 ${focusedRow === rowIndex && "bg-primary-1/5"}`,
         className,
       )}
       onMouseEnter={handleMouseEnter}
