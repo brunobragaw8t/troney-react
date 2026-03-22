@@ -52,7 +52,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [x] Create movements CRUD UI
 - [x] Add control panel
 - [x] Prevent registering earnings if buckets aren't 100%
-- [ ] Paginate data tables
+- [x] Paginate data tables
 - [ ] Add profile page
 - [ ] Allow to delete account
 - [ ] Add autocomplete of previously registered expenses, with price

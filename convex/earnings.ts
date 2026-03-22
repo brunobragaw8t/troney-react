@@ -1,22 +1,25 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const getEarnings = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
-    if (!userId) return null;
+    if (!userId)
+      return { page: [], isDone: true, continueCursor: "", splitCursor: null };
 
-    const earnings = await ctx.db
+    const results = await ctx.db
       .query("earnings")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
+      .withIndex("by_userId_date", (q) => q.eq("userId", userId))
+      .order("desc")
+      .paginate(args.paginationOpts);
 
-    const earningsWithWallet = await Promise.all(
-      earnings.map(async (earning) => {
+    const page = await Promise.all(
+      results.page.map(async (earning) => {
         const wallet = await ctx.db.get(earning.walletId);
         return {
           ...earning,
@@ -25,7 +28,7 @@ export const getEarnings = query({
       }),
     );
 
-    return earningsWithWallet.sort((a, b) => b.date.localeCompare(a.date));
+    return { ...results, page };
   },
 });
 

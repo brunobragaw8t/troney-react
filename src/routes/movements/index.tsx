@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, usePaginatedQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { useCallback, useMemo, useState } from "react";
 import { LuCirclePlus, LuPencilLine, LuTrash } from "react-icons/lu";
@@ -29,6 +29,18 @@ export const Route = createFileRoute("/movements/")({
 function RouteComponent() {
   const navigate = useNavigate();
 
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.movements.getMovements,
+    {},
+    { initialNumItems: 50 },
+  );
+
+  const handleLoadMore = useCallback(() => {
+    if (status === "CanLoadMore") {
+      loadMore(10);
+    }
+  }, [status, loadMore]);
+
   useKeyboardShortcuts({
     shortcuts: useMemo(
       () => [
@@ -38,8 +50,12 @@ function RouteComponent() {
             navigate({ to: "/movements/create" });
           },
         },
+        {
+          key: "l",
+          action: handleLoadMore,
+        },
       ],
-      [navigate],
+      [navigate, handleLoadMore],
     ),
   });
 
@@ -48,14 +64,11 @@ function RouteComponent() {
     message: "",
   });
 
-  const movements = useQuery(api.movements.getMovements);
-
   const handleEdit = useCallback(
     (index: number) => {
-      if (!movements) return;
-      navigate({ to: `/movements/${movements[index]._id}/edit` });
+      navigate({ to: `/movements/${results[index]._id}/edit` });
     },
-    [navigate, movements],
+    [navigate, results],
   );
 
   const deleteMovement = useMutation(api.movements.deleteMovement);
@@ -69,8 +82,7 @@ function RouteComponent() {
 
   const handleDelete = useCallback(
     (index: number) => {
-      if (!movements) return;
-      const movement = movements[index];
+      const movement = results[index];
       setMovementToDelete({
         id: movement._id,
         source: movement.sourceWalletName,
@@ -78,7 +90,7 @@ function RouteComponent() {
       });
       setDeletionModalOpen(true);
     },
-    [movements],
+    [results],
   );
 
   const handleCancelDelete = useCallback(() => {
@@ -142,64 +154,83 @@ function RouteComponent() {
         </div>
       )}
 
-      {!movements ? (
+      {status === "LoadingFirstPage" ? (
         <Spinner message="Loading your movements" />
       ) : (
-        <Table numberOfRows={movements.length}>
-          <TableHead>
-            <TableRow>
-              <TableHeader>Date</TableHeader>
-              <TableHeader>Source</TableHeader>
-              <TableHeader>Value</TableHeader>
-              <TableHeader>Target</TableHeader>
-              <TableHeader>Actions</TableHeader>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {movements.map((movement, index) => (
-              <TableRow key={movement._id} rowIndex={index} actions={actions}>
-                <TableCell>{movement.date}</TableCell>
-                <TableCell>{movement.sourceWalletName}</TableCell>
-                <TableCell>
-                  <Currency value={movement.value} />
-                </TableCell>
-                <TableCell>{movement.targetWalletName}</TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button
-                      type="link"
-                      icon={LuPencilLine}
-                      iconPosition="left"
-                      href={`/movements/${movement._id}/edit`}
-                      size="sm"
-                      variant="primary-ghost"
-                      tooltip={
-                        <>
-                          Edit <Keymap text="e" className="ml-1" />
-                        </>
-                      }
-                    />
-
-                    <Button
-                      type="button"
-                      icon={LuTrash}
-                      iconPosition="left"
-                      onClick={() => handleDelete(index)}
-                      size="sm"
-                      variant="danger-ghost"
-                      tooltip={
-                        <>
-                          Delete <Keymap text="d" className="ml-1" />
-                        </>
-                      }
-                    />
-                  </div>
-                </TableCell>
+        <>
+          <Table numberOfRows={results.length} onLoadMore={handleLoadMore}>
+            <TableHead>
+              <TableRow>
+                <TableHeader>Date</TableHeader>
+                <TableHeader>Source</TableHeader>
+                <TableHeader>Value</TableHeader>
+                <TableHeader>Target</TableHeader>
+                <TableHeader>Actions</TableHeader>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+
+            <TableBody>
+              {results.map((movement, index) => (
+                <TableRow key={movement._id} rowIndex={index} actions={actions}>
+                  <TableCell>{movement.date}</TableCell>
+                  <TableCell>{movement.sourceWalletName}</TableCell>
+                  <TableCell>
+                    <Currency value={movement.value} />
+                  </TableCell>
+                  <TableCell>{movement.targetWalletName}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        type="link"
+                        icon={LuPencilLine}
+                        iconPosition="left"
+                        href={`/movements/${movement._id}/edit`}
+                        size="sm"
+                        variant="primary-ghost"
+                        tooltip={
+                          <>
+                            Edit <Keymap text="e" className="ml-1" />
+                          </>
+                        }
+                      />
+
+                      <Button
+                        type="button"
+                        icon={LuTrash}
+                        iconPosition="left"
+                        onClick={() => handleDelete(index)}
+                        size="sm"
+                        variant="danger-ghost"
+                        tooltip={
+                          <>
+                            Delete <Keymap text="d" className="ml-1" />
+                          </>
+                        }
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {status === "LoadingMore" && (
+            <div className="mt-4 flex justify-center">
+              <Spinner message="Loading more movements" />
+            </div>
+          )}
+
+          {status === "CanLoadMore" && (
+            <div className="mt-4 flex justify-center">
+              <Button
+                type="button"
+                label="Load more"
+                onClick={handleLoadMore}
+                tooltip={<Keymap text="l" />}
+              />
+            </div>
+          )}
+        </>
       )}
 
       <ConfirmationModal

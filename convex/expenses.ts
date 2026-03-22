@@ -1,27 +1,31 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const getExpenses = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
-    if (!userId) return null;
+    if (!userId)
+      return { page: [], isDone: true, continueCursor: "", splitCursor: null };
 
-    const expenses = await ctx.db
+    const results = await ctx.db
       .query("expenses")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
+      .withIndex("by_userId_date", (q) => q.eq("userId", userId))
+      .order("desc")
+      .paginate(args.paginationOpts);
 
-    const expensesWithRelations = await Promise.all(
-      expenses.map(async (expense) => {
+    const page = await Promise.all(
+      results.page.map(async (expense) => {
         const [wallet, bucket, category] = await Promise.all([
           ctx.db.get(expense.walletId),
           ctx.db.get(expense.bucketId),
           ctx.db.get(expense.categoryId),
         ]);
+
         return {
           ...expense,
           walletName: wallet?.name ?? "No wallet",
@@ -31,11 +35,7 @@ export const getExpenses = query({
       }),
     );
 
-    return expensesWithRelations.sort((a, b) => {
-      const dateCompare = b.date.localeCompare(a.date);
-      if (dateCompare !== 0) return dateCompare;
-      return b._creationTime - a._creationTime;
-    });
+    return { ...results, page };
   },
 });
 

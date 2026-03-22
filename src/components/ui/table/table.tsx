@@ -18,6 +18,7 @@ export type TableRowActions = {
 const TableContext = createContext<{
   focusedRow: number | null;
   setFocusedRow: Dispatch<SetStateAction<number | null>>;
+  onLoadMore?: () => void;
 }>({
   focusedRow: null,
   setFocusedRow: () => {},
@@ -25,10 +26,14 @@ const TableContext = createContext<{
 
 export function Table({
   numberOfRows,
+  onLoadMore,
   className,
   children,
   ...props
-}: React.ComponentProps<"table"> & { numberOfRows: number }) {
+}: React.ComponentProps<"table"> & {
+  numberOfRows: number;
+  onLoadMore?: () => void;
+}) {
   const [focusedRow, setFocusedRow] = useState<number | null>(null);
 
   const goUp = useCallback(() => {
@@ -47,9 +52,14 @@ export function Table({
         return 0;
       }
 
+      if (onLoadMore && prev === numberOfRows - 1) {
+        onLoadMore();
+        return prev;
+      }
+
       return Math.min(prev + 1, numberOfRows - 1);
     });
-  }, [numberOfRows]);
+  }, [numberOfRows, onLoadMore]);
 
   useKeyboardShortcuts({
     shortcuts: useMemo(
@@ -66,6 +76,7 @@ export function Table({
   const contextValue = {
     focusedRow,
     setFocusedRow,
+    onLoadMore,
   };
 
   return (

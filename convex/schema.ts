@@ -31,6 +31,7 @@ export default defineSchema({
     date: v.string(),
   })
     .index("by_userId", ["userId"])
+    .index("by_userId_date", ["userId", "date"])
     .index("by_walletId", ["walletId"]),
   earningAllocations: defineTable({
     earningId: v.id("earnings"),
@@ -50,6 +51,7 @@ export default defineSchema({
     date: v.string(),
   })
     .index("by_userId", ["userId"])
+    .index("by_userId_date", ["userId", "date"])
     .index("by_walletId", ["walletId"])
     .index("by_bucketId", ["bucketId"])
     .index("by_categoryId", ["categoryId"]),
@@ -59,5 +61,7 @@ export default defineSchema({
     walletIdTarget: v.optional(v.id("wallets")),
     value: v.number(),
     date: v.string(),
-  }).index("by_userId", ["userId"]),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_date", ["userId", "date"]),
 });

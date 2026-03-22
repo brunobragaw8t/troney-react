@@ -1,22 +1,25 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const getMovements = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
-    if (!userId) return null;
+    if (!userId)
+      return { page: [], isDone: true, continueCursor: "", splitCursor: null };
 
-    const movements = await ctx.db
+    const results = await ctx.db
       .query("movements")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
+      .withIndex("by_userId_date", (q) => q.eq("userId", userId))
+      .order("desc")
+      .paginate(args.paginationOpts);
 
-    const movementsWithWallets = await Promise.all(
-      movements.map(async (movement) => {
+    const page = await Promise.all(
+      results.page.map(async (movement) => {
         const [sourceWallet, targetWallet] = await Promise.all([
           movement.walletIdSource ? ctx.db.get(movement.walletIdSource) : null,
           movement.walletIdTarget ? ctx.db.get(movement.walletIdTarget) : null,
@@ -29,7 +32,7 @@ export const getMovements = query({
       }),
     );
 
-    return movementsWithWallets.sort((a, b) => b.date.localeCompare(a.date));
+    return { ...results, page };
   },
 });
 
