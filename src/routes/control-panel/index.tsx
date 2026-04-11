@@ -1,8 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "convex/react";
 import { useMemo } from "react";
-import { LuArrowUpRight, LuPackageOpen, LuWallet } from "react-icons/lu";
+import {
+  LuArrowUpRight,
+  LuChartColumn,
+  LuPackageOpen,
+  LuWallet,
+} from "react-icons/lu";
 import { api } from "../../../convex/_generated/api";
+import { EarningsVsExpensesChart } from "../../components/analytics/earnings-vs-expenses-chart";
 import { Currency } from "../../components/ui/currency/currency";
 import { Spinner } from "../../components/ui/spinner/spinner";
 import { cn } from "../../lib/utils";
@@ -14,13 +20,14 @@ export const Route = createFileRoute("/control-panel/")({
 function RouteComponent() {
   const wallets = useQuery(api.wallets.getWallets);
   const buckets = useQuery(api.buckets.getBuckets);
+  const earningsVsExpenses = useQuery(api.analytics.getEarningsVsExpenses);
 
   const totalBalance = useMemo(
     () => (wallets ?? []).reduce((sum, w) => sum + w.balance, 0),
     [wallets],
   );
 
-  if (!wallets || !buckets) {
+  if (!wallets || !buckets || !earningsVsExpenses) {
     return <Spinner message="Loading your data" />;
   }
 
@@ -135,6 +142,20 @@ function RouteComponent() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-medium text-secondary-4">
+            <LuChartColumn className="h-5 w-5 text-primary-1" />
+            Earnings vs Expenses
+          </h2>
+
+          <div className="rounded-lg border border-secondary-3/50 bg-gradient-to-br from-secondary-2/50 to-secondary-1/50 p-6">
+            <EarningsVsExpensesChart
+              earnings={earningsVsExpenses.earnings}
+              expenses={earningsVsExpenses.expenses}
+            />
           </div>
         </div>
       </div>
