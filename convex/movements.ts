@@ -55,11 +55,17 @@ export const createMovement = mutation({
   args: {
     walletIdSource: v.optional(v.id("wallets")),
     walletIdTarget: v.optional(v.id("wallets")),
+    title: v.string(),
     value: v.number(),
     date: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+
+    const title = args.title.trim();
+    if (title.length < 1 || title.length > 100) {
+      throw new ConvexError("Title must be between 1 and 100 characters");
+    }
 
     if (args.value <= 0) throw new ConvexError("Value must be greater than 0");
 
@@ -95,6 +101,7 @@ export const createMovement = mutation({
       userId,
       walletIdSource: args.walletIdSource,
       walletIdTarget: args.walletIdTarget,
+      title,
       value: args.value,
       date: args.date,
     });
@@ -108,11 +115,17 @@ export const updateMovement = mutation({
     id: v.id("movements"),
     walletIdSource: v.optional(v.id("wallets")),
     walletIdTarget: v.optional(v.id("wallets")),
+    title: v.string(),
     value: v.number(),
     date: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+
+    const title = args.title.trim();
+    if (title.length < 1 || title.length > 100) {
+      throw new ConvexError("Title must be between 1 and 100 characters");
+    }
 
     if (args.value <= 0) throw new ConvexError("Value must be greater than 0");
 
@@ -171,6 +184,7 @@ export const updateMovement = mutation({
     await ctx.db.patch(args.id, {
       walletIdSource: args.walletIdSource,
       walletIdTarget: args.walletIdTarget,
+      title,
       value: args.value,
       date: args.date,
     });

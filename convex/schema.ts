@@ -59,6 +59,7 @@ export default defineSchema({
     userId: v.id("users"),
     walletIdSource: v.optional(v.id("wallets")),
     walletIdTarget: v.optional(v.id("wallets")),
+    title: v.optional(v.string()),
     value: v.number(),
     date: v.string(),
   })

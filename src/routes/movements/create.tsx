@@ -39,6 +39,7 @@ function RouteComponent() {
   async function handleSubmit(data: {
     walletIdSource: string;
     walletIdTarget: string;
+    title: string;
     value: number;
     date: string;
   }) {
@@ -50,6 +51,7 @@ function RouteComponent() {
         walletIdTarget: data.walletIdTarget
           ? (data.walletIdTarget as Id<"wallets">)
           : undefined,
+        title: data.title,
         value: data.value,
         date: data.date,
       });

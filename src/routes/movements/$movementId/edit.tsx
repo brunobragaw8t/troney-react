@@ -46,6 +46,7 @@ function RouteComponent() {
   async function handleSubmit(data: {
     walletIdSource: string;
     walletIdTarget: string;
+    title: string;
     value: number;
     date: string;
   }) {
@@ -58,6 +59,7 @@ function RouteComponent() {
         walletIdTarget: data.walletIdTarget
           ? (data.walletIdTarget as Id<"wallets">)
           : undefined,
+        title: data.title,
         value: data.value,
         date: data.date,
       });
@@ -94,6 +96,7 @@ function RouteComponent() {
         <MovementForm
           initialWalletIdSource={movement.walletIdSource ?? ""}
           initialWalletIdTarget={movement.walletIdTarget ?? ""}
+          initialTitle={movement.title}
           initialValue={movement.value}
           initialDate={movement.date}
           submitLabel="Save changes"

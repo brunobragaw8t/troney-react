@@ -78,6 +78,7 @@ function RouteComponent() {
     id: Id<"movements">;
     source: string;
     target: string;
+    title: string;
   } | null>(null);
 
   const handleDelete = useCallback(
@@ -87,6 +88,7 @@ function RouteComponent() {
         id: movement._id,
         source: movement.sourceWalletName,
         target: movement.targetWalletName,
+        title: movement.title ?? "Unknown",
       });
       setDeletionModalOpen(true);
     },
@@ -162,6 +164,7 @@ function RouteComponent() {
             <TableHead>
               <TableRow>
                 <TableHeader>Date</TableHeader>
+                <TableHeader>Title</TableHeader>
                 <TableHeader>Source</TableHeader>
                 <TableHeader>Value</TableHeader>
                 <TableHeader>Target</TableHeader>
@@ -173,6 +176,7 @@ function RouteComponent() {
               {results.map((movement, index) => (
                 <TableRow key={movement._id} rowIndex={index} actions={actions}>
                   <TableCell>{movement.date}</TableCell>
+                  <TableCell>{movement.title}</TableCell>
                   <TableCell>{movement.sourceWalletName}</TableCell>
                   <TableCell>
                     <Currency value={movement.value} />
@@ -238,7 +242,7 @@ function RouteComponent() {
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
         title="Delete movement"
-        message={`Are you sure you want to delete the movement from ${movementToDelete?.source ?? ""} to ${movementToDelete?.target ?? ""}? This will reverse the wallet balance changes. This action cannot be undone.`}
+        message={`Are you sure you want to delete "${movementToDelete?.title ?? ""}" (from ${movementToDelete?.source ?? ""} to ${movementToDelete?.target ?? ""})? This will reverse the wallet balance changes. This action cannot be undone.`}
         confirmText="Delete"
         variant="danger-ghost"
         loading={isDeleting}

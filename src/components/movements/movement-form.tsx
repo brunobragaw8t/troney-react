@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "convex/react";
 import { useState } from "react";
-import { LuArrowLeftRight, LuCalendar, LuWallet } from "react-icons/lu";
+import { LuArrowLeftRight, LuCalendar, LuCaptions, LuWallet } from "react-icons/lu";
 import { api } from "../../../convex/_generated/api";
 import { Alert, type AlertProps } from "../ui/alert/alert";
 import { Button } from "../ui/button/button";
@@ -12,6 +12,7 @@ import { Spinner } from "../ui/spinner/spinner";
 export interface MovementFormData {
   walletIdSource: string;
   walletIdTarget: string;
+  title: string;
   value: number;
   date: string;
 }
@@ -19,6 +20,7 @@ export interface MovementFormData {
 interface MovementFormProps {
   initialWalletIdSource?: string;
   initialWalletIdTarget?: string;
+  initialTitle?: string;
   initialValue?: number;
   initialDate?: string;
   submitLabel: string;
@@ -28,6 +30,7 @@ interface MovementFormProps {
 export function MovementForm({
   initialWalletIdSource = "",
   initialWalletIdTarget = "",
+  initialTitle = "",
   initialValue = 0,
   initialDate = "",
   submitLabel,
@@ -47,6 +50,12 @@ export function MovementForm({
     event: React.ChangeEvent<HTMLSelectElement>,
   ) {
     setWalletIdTarget(event.target.value);
+  }
+
+  const [title, setTitle] = useState(initialTitle);
+
+  function handleTitleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setTitle(event.target.value);
   }
 
   const [value, setValue] = useState(
@@ -86,6 +95,15 @@ export function MovementForm({
     setLoading(true);
     setAlert({ type: "success", message: "" });
 
+    if (!title.trim()) {
+      setAlert({
+        type: "error",
+        message: "Title is required",
+      });
+      setLoading(false);
+      return;
+    }
+
     const valueNumber = parseFloat(value);
     if (Number.isNaN(valueNumber) || valueNumber <= 0) {
       setAlert({
@@ -102,6 +120,7 @@ export function MovementForm({
       await onSubmit({
         walletIdSource,
         walletIdTarget,
+        title,
         value: valueCents,
         date,
       });
@@ -149,6 +168,16 @@ export function MovementForm({
           onChange={handleWalletIdTargetChange}
           placeholder="Select target wallet"
           options={walletOptions}
+        />
+
+        <Input
+          label="Title"
+          icon={LuCaptions}
+          type="text"
+          name="title"
+          value={title}
+          onChange={handleTitleChange}
+          placeholder="Transfer, Withdrawal, Deposit..."
         />
 
         <Input
