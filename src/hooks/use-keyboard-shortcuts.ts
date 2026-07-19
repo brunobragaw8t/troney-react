@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react";
 
 interface KeyboardShortcut {
   key: string;
+  shift?: boolean;
   action: (event?: KeyboardEvent) => void;
 }
 
@@ -23,11 +24,15 @@ export function useKeyboardShortcuts({
         return;
       }
 
-      if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+      if (event.ctrlKey || event.altKey || event.metaKey) {
         return;
       }
 
-      const shortcut = shortcuts.find((shortcut) => shortcut.key === event.key);
+      const shortcut = shortcuts.find(
+        (s) =>
+          s.key === event.key &&
+          (s.shift ? event.shiftKey : !event.shiftKey),
+      );
 
       if (shortcut) {
         event.preventDefault();

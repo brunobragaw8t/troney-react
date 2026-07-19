@@ -22,37 +22,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 
 ## ToDo and milestones
 
-- [x] Validate environment variables
-- [x] Setup Prettier
-- [x] Setup Tailwind
-- [x] Install icons
-- [x] Setup router
-- [x] Setup Storybook
-- [x] Add auth
-- [x] Define categories schema
-- [x] Create categories CRUD functions
-- [x] Seed default categories for user
-- [x] Create categories CRUD UI
-- [x] Define buckets schema
-- [x] Create buckets CRUD functions
-- [x] Seed default buckets for user
-- [x] Create buckets CRUD UI
-- [x] Define wallets schema
-- [x] Create wallets CRUD functions
-- [x] Seed default wallets for user
-- [x] Create wallets CRUD UI
-- [x] Define earnings schema
-- [x] Create earnings CRUD functions
-- [x] Create earnings CRUD UI
-- [x] Define expenses schema
-- [x] Create expenses CRUD functions
-- [x] Create expenses CRUD UI
-- [x] Define movements schema
-- [x] Create movements CRUD functions
-- [x] Create movements CRUD UI
-- [x] Add control panel
-- [x] Prevent registering earnings if buckets aren't 100%
-- [x] Paginate data tables
+- [x] Add expense groups (for supermark groceries)
 - [ ] Add profile page
 - [ ] Allow to delete account
 - [ ] Add autocomplete of previously registered expenses, with price

@@ -9,7 +9,7 @@ type Variant =
   | "outline"
   | "danger"
   | "danger-ghost";
-type Size = "sm" | "md";
+type Size = "xs" | "sm" | "md";
 
 type Props = {
   label?: string;
@@ -54,6 +54,11 @@ export function Button(props: Props) {
     Size,
     { button: string; text: string; icon: number }
   > = {
+    xs: {
+      button: `text-xs py-1 ${props.label ? "px-2" : "px-1"}`,
+      text: "gap-1",
+      icon: 16,
+    },
     sm: {
       button: `text-sm py-1 ${props.label ? "px-2" : "px-1"}`,
       text: "gap-1",

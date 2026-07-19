@@ -18,8 +18,10 @@ export const getExpenses = query({
       .order("desc")
       .paginate(args.paginationOpts);
 
+    const standalone = results.page.filter((e) => !e.groupId);
+
     const page = await Promise.all(
-      results.page.map(async (expense) => {
+      standalone.map(async (expense) => {
         const [wallet, bucket, category] = await Promise.all([
           ctx.db.get(expense.walletId),
           ctx.db.get(expense.bucketId),

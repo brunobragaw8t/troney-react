@@ -13,6 +13,7 @@ import type * as auth from "../auth.js";
 import type * as buckets from "../buckets.js";
 import type * as categories from "../categories.js";
 import type * as earnings from "../earnings.js";
+import type * as expense_groups from "../expense_groups.js";
 import type * as expenses from "../expenses.js";
 import type * as http from "../http.js";
 import type * as movements from "../movements.js";
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   buckets: typeof buckets;
   categories: typeof categories;
   earnings: typeof earnings;
+  expense_groups: typeof expense_groups;
   expenses: typeof expenses;
   http: typeof http;
   movements: typeof movements;

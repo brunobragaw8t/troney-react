@@ -39,11 +39,21 @@ export default defineSchema({
     value: v.number(),
     bucketPercentage: v.number(),
   }).index("by_earningId", ["earningId"]),
+  expenseGroups: defineTable({
+    userId: v.id("users"),
+    walletId: v.id("wallets"),
+    date: v.string(),
+    source: v.string(),
+    description: v.optional(v.string()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_date", ["userId", "date"]),
   expenses: defineTable({
     userId: v.id("users"),
     walletId: v.id("wallets"),
     bucketId: v.id("buckets"),
     categoryId: v.id("categories"),
+    groupId: v.optional(v.id("expenseGroups")),
     title: v.string(),
     description: v.string(),
     value: v.number(),
@@ -54,7 +64,8 @@ export default defineSchema({
     .index("by_userId_date", ["userId", "date"])
     .index("by_walletId", ["walletId"])
     .index("by_bucketId", ["bucketId"])
-    .index("by_categoryId", ["categoryId"]),
+    .index("by_categoryId", ["categoryId"])
+    .index("by_groupId", ["groupId"]),
   movements: defineTable({
     userId: v.id("users"),
     walletIdSource: v.optional(v.id("wallets")),

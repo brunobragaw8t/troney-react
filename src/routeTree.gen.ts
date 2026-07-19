@@ -20,12 +20,14 @@ import { Route as BucketsIndexRouteImport } from './routes/buckets/index'
 import { Route as WalletsCreateRouteImport } from './routes/wallets/create'
 import { Route as MovementsCreateRouteImport } from './routes/movements/create'
 import { Route as ExpensesCreateRouteImport } from './routes/expenses/create'
+import { Route as ExpenseGroupsCreateRouteImport } from './routes/expense-groups/create'
 import { Route as EarningsCreateRouteImport } from './routes/earnings/create'
 import { Route as CategoriesCreateRouteImport } from './routes/categories/create'
 import { Route as BucketsCreateRouteImport } from './routes/buckets/create'
 import { Route as WalletsWalletIdEditRouteImport } from './routes/wallets/$walletId/edit'
 import { Route as MovementsMovementIdEditRouteImport } from './routes/movements/$movementId/edit'
 import { Route as ExpensesExpenseIdEditRouteImport } from './routes/expenses/$expenseId/edit'
+import { Route as ExpenseGroupsExpenseGroupIdEditRouteImport } from './routes/expense-groups/$expenseGroupId/edit'
 import { Route as EarningsEarningIdEditRouteImport } from './routes/earnings/$earningId/edit'
 import { Route as CategoriesCategoryIdEditRouteImport } from './routes/categories/$categoryId/edit'
 import { Route as BucketsBucketIdEditRouteImport } from './routes/buckets/$bucketId/edit'
@@ -85,6 +87,11 @@ const ExpensesCreateRoute = ExpensesCreateRouteImport.update({
   path: '/expenses/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExpenseGroupsCreateRoute = ExpenseGroupsCreateRouteImport.update({
+  id: '/expense-groups/create',
+  path: '/expense-groups/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EarningsCreateRoute = EarningsCreateRouteImport.update({
   id: '/earnings/create',
   path: '/earnings/create',
@@ -115,6 +122,12 @@ const ExpensesExpenseIdEditRoute = ExpensesExpenseIdEditRouteImport.update({
   path: '/expenses/$expenseId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExpenseGroupsExpenseGroupIdEditRoute =
+  ExpenseGroupsExpenseGroupIdEditRouteImport.update({
+    id: '/expense-groups/$expenseGroupId/edit',
+    path: '/expense-groups/$expenseGroupId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EarningsEarningIdEditRoute = EarningsEarningIdEditRouteImport.update({
   id: '/earnings/$earningId/edit',
   path: '/earnings/$earningId/edit',
@@ -137,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
   '/earnings/create': typeof EarningsCreateRoute
+  '/expense-groups/create': typeof ExpenseGroupsCreateRoute
   '/expenses/create': typeof ExpensesCreateRoute
   '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
@@ -150,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
   '/earnings/$earningId/edit': typeof EarningsEarningIdEditRoute
+  '/expense-groups/$expenseGroupId/edit': typeof ExpenseGroupsExpenseGroupIdEditRoute
   '/expenses/$expenseId/edit': typeof ExpensesExpenseIdEditRoute
   '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
@@ -159,6 +174,7 @@ export interface FileRoutesByTo {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
   '/earnings/create': typeof EarningsCreateRoute
+  '/expense-groups/create': typeof ExpenseGroupsCreateRoute
   '/expenses/create': typeof ExpensesCreateRoute
   '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
@@ -172,6 +188,7 @@ export interface FileRoutesByTo {
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
   '/earnings/$earningId/edit': typeof EarningsEarningIdEditRoute
+  '/expense-groups/$expenseGroupId/edit': typeof ExpenseGroupsExpenseGroupIdEditRoute
   '/expenses/$expenseId/edit': typeof ExpensesExpenseIdEditRoute
   '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
@@ -182,6 +199,7 @@ export interface FileRoutesById {
   '/buckets/create': typeof BucketsCreateRoute
   '/categories/create': typeof CategoriesCreateRoute
   '/earnings/create': typeof EarningsCreateRoute
+  '/expense-groups/create': typeof ExpenseGroupsCreateRoute
   '/expenses/create': typeof ExpensesCreateRoute
   '/movements/create': typeof MovementsCreateRoute
   '/wallets/create': typeof WalletsCreateRoute
@@ -195,6 +213,7 @@ export interface FileRoutesById {
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
   '/earnings/$earningId/edit': typeof EarningsEarningIdEditRoute
+  '/expense-groups/$expenseGroupId/edit': typeof ExpenseGroupsExpenseGroupIdEditRoute
   '/expenses/$expenseId/edit': typeof ExpensesExpenseIdEditRoute
   '/movements/$movementId/edit': typeof MovementsMovementIdEditRoute
   '/wallets/$walletId/edit': typeof WalletsWalletIdEditRoute
@@ -206,6 +225,7 @@ export interface FileRouteTypes {
     | '/buckets/create'
     | '/categories/create'
     | '/earnings/create'
+    | '/expense-groups/create'
     | '/expenses/create'
     | '/movements/create'
     | '/wallets/create'
@@ -219,6 +239,7 @@ export interface FileRouteTypes {
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
     | '/earnings/$earningId/edit'
+    | '/expense-groups/$expenseGroupId/edit'
     | '/expenses/$expenseId/edit'
     | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
@@ -228,6 +249,7 @@ export interface FileRouteTypes {
     | '/buckets/create'
     | '/categories/create'
     | '/earnings/create'
+    | '/expense-groups/create'
     | '/expenses/create'
     | '/movements/create'
     | '/wallets/create'
@@ -241,6 +263,7 @@ export interface FileRouteTypes {
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
     | '/earnings/$earningId/edit'
+    | '/expense-groups/$expenseGroupId/edit'
     | '/expenses/$expenseId/edit'
     | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
@@ -250,6 +273,7 @@ export interface FileRouteTypes {
     | '/buckets/create'
     | '/categories/create'
     | '/earnings/create'
+    | '/expense-groups/create'
     | '/expenses/create'
     | '/movements/create'
     | '/wallets/create'
@@ -263,6 +287,7 @@ export interface FileRouteTypes {
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
     | '/earnings/$earningId/edit'
+    | '/expense-groups/$expenseGroupId/edit'
     | '/expenses/$expenseId/edit'
     | '/movements/$movementId/edit'
     | '/wallets/$walletId/edit'
@@ -273,6 +298,7 @@ export interface RootRouteChildren {
   BucketsCreateRoute: typeof BucketsCreateRoute
   CategoriesCreateRoute: typeof CategoriesCreateRoute
   EarningsCreateRoute: typeof EarningsCreateRoute
+  ExpenseGroupsCreateRoute: typeof ExpenseGroupsCreateRoute
   ExpensesCreateRoute: typeof ExpensesCreateRoute
   MovementsCreateRoute: typeof MovementsCreateRoute
   WalletsCreateRoute: typeof WalletsCreateRoute
@@ -286,6 +312,7 @@ export interface RootRouteChildren {
   BucketsBucketIdEditRoute: typeof BucketsBucketIdEditRoute
   CategoriesCategoryIdEditRoute: typeof CategoriesCategoryIdEditRoute
   EarningsEarningIdEditRoute: typeof EarningsEarningIdEditRoute
+  ExpenseGroupsExpenseGroupIdEditRoute: typeof ExpenseGroupsExpenseGroupIdEditRoute
   ExpensesExpenseIdEditRoute: typeof ExpensesExpenseIdEditRoute
   MovementsMovementIdEditRoute: typeof MovementsMovementIdEditRoute
   WalletsWalletIdEditRoute: typeof WalletsWalletIdEditRoute
@@ -370,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExpensesCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/expense-groups/create': {
+      id: '/expense-groups/create'
+      path: '/expense-groups/create'
+      fullPath: '/expense-groups/create'
+      preLoaderRoute: typeof ExpenseGroupsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/earnings/create': {
       id: '/earnings/create'
       path: '/earnings/create'
@@ -412,6 +446,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExpensesExpenseIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/expense-groups/$expenseGroupId/edit': {
+      id: '/expense-groups/$expenseGroupId/edit'
+      path: '/expense-groups/$expenseGroupId/edit'
+      fullPath: '/expense-groups/$expenseGroupId/edit'
+      preLoaderRoute: typeof ExpenseGroupsExpenseGroupIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/earnings/$earningId/edit': {
       id: '/earnings/$earningId/edit'
       path: '/earnings/$earningId/edit'
@@ -441,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   BucketsCreateRoute: BucketsCreateRoute,
   CategoriesCreateRoute: CategoriesCreateRoute,
   EarningsCreateRoute: EarningsCreateRoute,
+  ExpenseGroupsCreateRoute: ExpenseGroupsCreateRoute,
   ExpensesCreateRoute: ExpensesCreateRoute,
   MovementsCreateRoute: MovementsCreateRoute,
   WalletsCreateRoute: WalletsCreateRoute,
@@ -454,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   BucketsBucketIdEditRoute: BucketsBucketIdEditRoute,
   CategoriesCategoryIdEditRoute: CategoriesCategoryIdEditRoute,
   EarningsEarningIdEditRoute: EarningsEarningIdEditRoute,
+  ExpenseGroupsExpenseGroupIdEditRoute: ExpenseGroupsExpenseGroupIdEditRoute,
   ExpensesExpenseIdEditRoute: ExpensesExpenseIdEditRoute,
   MovementsMovementIdEditRoute: MovementsMovementIdEditRoute,
   WalletsWalletIdEditRoute: WalletsWalletIdEditRoute,
