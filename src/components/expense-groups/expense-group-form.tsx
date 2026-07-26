@@ -28,6 +28,14 @@ export interface ExpenseGroupItemData {
   description: string;
 }
 
+interface ExpenseGroupItemFormState {
+  bucketId: string;
+  categoryId: string;
+  title: string;
+  value: string;
+  description: string;
+}
+
 export interface ExpenseGroupFormData {
   walletId: string;
   date: string;
@@ -46,12 +54,12 @@ interface ExpenseGroupFormProps {
   onSubmit: (data: ExpenseGroupFormData) => Promise<void>;
 }
 
-function createEmptyItem(): ExpenseGroupItemData {
+function createEmptyItem(): ExpenseGroupItemFormState {
   return {
     bucketId: "",
     categoryId: "",
     title: "",
-    value: 0,
+    value: "",
     description: "",
   };
 }
@@ -89,14 +97,17 @@ export function ExpenseGroupForm({
     setDescription(event.target.value);
   }
 
-  const [items, setItems] = useState<ExpenseGroupItemData[]>(
-    initialItems ?? [createEmptyItem()],
+  const [items, setItems] = useState<ExpenseGroupItemFormState[]>(
+    initialItems?.map((item) => ({
+      ...item,
+      value: item.value ? String(item.value / 100) : "",
+    })) ?? [createEmptyItem()],
   );
 
   function handleItemChange(
     index: number,
-    field: keyof ExpenseGroupItemData,
-    value: string | number,
+    field: keyof ExpenseGroupItemFormState,
+    value: string,
   ) {
     setItems((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
@@ -116,7 +127,10 @@ export function ExpenseGroupForm({
     setItems((prev) => prev.filter((_, i) => i !== index));
   }
 
-  const totalValue = items.reduce((sum, item) => sum + item.value, 0);
+  const totalValue = items.reduce(
+    (sum, item) => sum + (parseFloat(item.value) || 0),
+    0,
+  );
 
   const [alert, setAlert] = useState<AlertProps>({
     type: "success",
@@ -147,6 +161,14 @@ export function ExpenseGroupForm({
       return;
     }
 
+    const processedItems: {
+      bucketId: string;
+      categoryId: string;
+      title: string;
+      value: number;
+      description: string;
+    }[] = [];
+
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (!item.title.trim()) {
@@ -173,14 +195,26 @@ export function ExpenseGroupForm({
         setLoading(false);
         return;
       }
-      if (item.value <= 0) {
+
+      const valueNumber = parseFloat(item.value);
+      if (Number.isNaN(valueNumber)) {
         setAlert({
           type: "error",
-          message: `Item ${i + 1}: value must be positive`,
+          message: `Item ${i + 1}: value must be a valid number`,
         });
         setLoading(false);
         return;
       }
+
+      const valueCents = Math.round(valueNumber * 100);
+
+      processedItems.push({
+        bucketId: item.bucketId,
+        categoryId: item.categoryId,
+        title: item.title.trim(),
+        value: valueCents,
+        description: item.description.trim(),
+      });
     }
 
     try {
@@ -189,11 +223,7 @@ export function ExpenseGroupForm({
         date,
         source,
         description,
-        items: items.map((item) => ({
-          ...item,
-          title: item.title.trim(),
-          description: item.description.trim(),
-        })),
+        items: processedItems,
       });
     } catch (error) {
       setAlert({
@@ -328,15 +358,10 @@ export function ExpenseGroupForm({
                     icon={LuCreditCard}
                     type="text"
                     name={`item-value-${index}`}
-                    value={item.value ? String(item.value / 100) : ""}
-                    onChange={(e) => {
-                      const num = parseFloat(e.target.value);
-                      handleItemChange(
-                        index,
-                        "value",
-                        Number.isNaN(num) ? 0 : Math.round(num * 100),
-                      );
-                    }}
+                    value={item.value}
+                    onChange={(e) =>
+                      handleItemChange(index, "value", e.target.value)
+                    }
                     placeholder="0.00"
                   />
                 </div>

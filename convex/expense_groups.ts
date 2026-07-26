@@ -191,7 +191,6 @@ export const createExpenseGroup = mutation({
       if (title.length < 1) throw new ConvexError("Item title is required");
       if (title.length > 100)
         throw new ConvexError("Item title must be 100 characters or less");
-      if (item.value <= 0) throw new ConvexError("Item value must be positive");
 
       const bucket = await ctx.db.get(item.bucketId);
       if (!bucket || bucket.userId !== userId) {
@@ -281,7 +280,6 @@ export const updateExpenseGroup = mutation({
       if (title.length < 1) throw new ConvexError("Item title is required");
       if (title.length > 100)
         throw new ConvexError("Item title must be 100 characters or less");
-      if (item.value <= 0) throw new ConvexError("Item value must be positive");
 
       const bucket = await ctx.db.get(item.bucketId);
       if (!bucket || bucket.userId !== userId) {
