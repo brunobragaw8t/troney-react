@@ -174,7 +174,6 @@ export const createExpenseGroup = mutation({
     const userId = await requireAuth(ctx);
 
     const source = args.source.trim();
-    if (source.length < 1) throw new ConvexError("Source is required");
     if (source.length > 100)
       throw new ConvexError("Source must be 100 characters or less");
 
@@ -204,6 +203,8 @@ export const createExpenseGroup = mutation({
     }
 
     const description = args.description?.trim();
+    if (description && description.length > 255)
+      throw new ConvexError("Description must be 255 characters or less");
 
     const groupId = await ctx.db.insert("expenseGroups", {
       userId,
@@ -258,7 +259,6 @@ export const updateExpenseGroup = mutation({
     const userId = await requireAuth(ctx);
 
     const source = args.source.trim();
-    if (source.length < 1) throw new ConvexError("Source is required");
     if (source.length > 100)
       throw new ConvexError("Source must be 100 characters or less");
 
@@ -326,6 +326,8 @@ export const updateExpenseGroup = mutation({
     }
 
     const description = args.description?.trim();
+    if (description && description.length > 255)
+      throw new ConvexError("Description must be 255 characters or less");
 
     await ctx.db.patch(args.id, {
       walletId: args.walletId,
