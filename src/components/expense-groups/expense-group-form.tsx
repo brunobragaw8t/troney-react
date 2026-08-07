@@ -290,7 +290,7 @@ export function ExpenseGroupForm({
             <h2 className="text-lg font-semibold text-white">Items</h2>
 
             <span className="text-secondary-4">
-              Total: <Currency value={totalValue} />
+              Total: <Currency value={totalValue * 100} />
             </span>
           </div>
 
