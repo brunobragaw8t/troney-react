@@ -21,3 +21,11 @@ Troney is a personal finance app built with React 19, TypeScript, Convex (server
 
 - Commit messages should be descriptive and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format
 - When asked to commit the staged changes, commit as is without changing the staging area
+
+## Using the app
+
+- When asked add an expense or expense group, do so by using Playwright MCP on https://troney.vercel.app/
+- You should be provided the items for that expense
+- You should decide the bucket and category associations for yourself
+- You can ask for the wallet and the source of the expense
+- Always assume the date is today, unless otherwise specified
