@@ -25,3 +25,6 @@ dist-ssr
 
 *storybook.log
 storybook-static
+
+# Playwright MCP artifacts (browser profile contains cookies/session)
+.playwright-mcp
