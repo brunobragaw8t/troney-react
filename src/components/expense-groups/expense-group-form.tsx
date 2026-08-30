@@ -286,13 +286,7 @@ export function ExpenseGroupForm({
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Items</h2>
-
-            <span className="text-secondary-4">
-              Total: <Currency value={totalValue * 100} />
-            </span>
-          </div>
+          <h2 className="text-lg font-semibold text-white">Items</h2>
 
           {items.map((item, index) => (
             <div
@@ -377,6 +371,14 @@ export function ExpenseGroupForm({
             variant="outline"
             onClick={handleAddItem}
           />
+
+          <div className="flex items-center justify-between rounded-lg border border-secondary-3 px-4 py-2 text-white">
+            <span className="text-sm">Total</span>
+
+            <span className="text-lg font-bold">
+              <Currency value={totalValue * 100} />
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
