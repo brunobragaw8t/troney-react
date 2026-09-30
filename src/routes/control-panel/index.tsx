@@ -4,11 +4,13 @@ import { useMemo } from "react";
 import {
   LuArrowUpRight,
   LuChartColumn,
+  LuChartPie,
   LuPackageOpen,
   LuWallet,
 } from "react-icons/lu";
 import { api } from "../../../convex/_generated/api";
 import { EarningsVsExpensesChart } from "../../components/analytics/earnings-vs-expenses-chart";
+import { SpendingByCategoryChart } from "../../components/analytics/spending-by-category-chart";
 import { Currency } from "../../components/ui/currency/currency";
 import { Spinner } from "../../components/ui/spinner/spinner";
 import { cn } from "../../lib/utils";
@@ -21,13 +23,14 @@ function RouteComponent() {
   const wallets = useQuery(api.wallets.getWallets);
   const buckets = useQuery(api.buckets.getBuckets);
   const earningsVsExpenses = useQuery(api.analytics.getEarningsVsExpenses);
+  const spendingByCategory = useQuery(api.analytics.getSpendingByCategory);
 
   const totalBalance = useMemo(
     () => (wallets ?? []).reduce((sum, w) => sum + w.balance, 0),
     [wallets],
   );
 
-  if (!wallets || !buckets || !earningsVsExpenses) {
+  if (!wallets || !buckets || !earningsVsExpenses || !spendingByCategory) {
     return <Spinner message="Loading your data" />;
   }
 
@@ -145,17 +148,30 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div>
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-medium text-secondary-4">
-            <LuChartColumn className="h-5 w-5 text-primary-1" />
-            Earnings vs Expenses
-          </h2>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-medium text-secondary-4">
+              <LuChartColumn className="h-5 w-5 text-primary-1" />
+              Earnings vs Expenses
+            </h2>
 
-          <div className="rounded-lg border border-secondary-3/50 bg-gradient-to-br from-secondary-2/50 to-secondary-1/50 p-6">
-            <EarningsVsExpensesChart
-              earnings={earningsVsExpenses.earnings}
-              expenses={earningsVsExpenses.expenses}
-            />
+            <div className="rounded-lg border border-secondary-3/50 bg-gradient-to-br from-secondary-2/50 to-secondary-1/50 p-6">
+              <EarningsVsExpensesChart
+                earnings={earningsVsExpenses.earnings}
+                expenses={earningsVsExpenses.expenses}
+              />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-medium text-secondary-4">
+              <LuChartPie className="h-5 w-5 text-primary-1" />
+              Spending by category
+            </h2>
+
+            <div className="rounded-lg border border-secondary-3/50 bg-gradient-to-br from-secondary-2/50 to-secondary-1/50 p-6">
+              <SpendingByCategoryChart entries={spendingByCategory} />
+            </div>
           </div>
         </div>
       </div>

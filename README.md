@@ -28,6 +28,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 - [ ] Add autocomplete of previously registered expenses, with price
 - [ ] View history of prices
 - [ ] Charts per month, trimester, semester and year
+- [x] Pie chart of spending per category, on the control panel
 - [ ] Switch between pie and bar chart
 - [ ] OCR
 - [ ] Extraordinary expense (doesn't count toward average)
