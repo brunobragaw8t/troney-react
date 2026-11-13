@@ -6,6 +6,7 @@ import {
   LuCreditCard,
   LuFolder,
   LuPackageOpen,
+  LuSettings,
   LuTrendingUp,
   LuWallet,
 } from "react-icons/lu";
@@ -58,6 +59,12 @@ export function AppMenu() {
         icon: LuFolder,
         label: "Categories",
         keymap: "c",
+      },
+      {
+        href: "/settings",
+        icon: LuSettings,
+        label: "Settings",
+        keymap: "s",
       },
     ],
     [],

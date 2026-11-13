@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WalletsIndexRouteImport } from './routes/wallets/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as MovementsIndexRouteImport } from './routes/movements/index'
 import { Route as ExpensesIndexRouteImport } from './routes/expenses/index'
 import { Route as EarningsIndexRouteImport } from './routes/earnings/index'
@@ -40,6 +41,11 @@ const IndexRoute = IndexRouteImport.update({
 const WalletsIndexRoute = WalletsIndexRouteImport.update({
   id: '/wallets/',
   path: '/wallets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MovementsIndexRoute = MovementsIndexRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/earnings/': typeof EarningsIndexRoute
   '/expenses/': typeof ExpensesIndexRoute
   '/movements/': typeof MovementsIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/earnings': typeof EarningsIndexRoute
   '/expenses': typeof ExpensesIndexRoute
   '/movements': typeof MovementsIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/wallets': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/earnings/': typeof EarningsIndexRoute
   '/expenses/': typeof ExpensesIndexRoute
   '/movements/': typeof MovementsIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/wallets/': typeof WalletsIndexRoute
   '/buckets/$bucketId/edit': typeof BucketsBucketIdEditRoute
   '/categories/$categoryId/edit': typeof CategoriesCategoryIdEditRoute
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/earnings/'
     | '/expenses/'
     | '/movements/'
+    | '/settings/'
     | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/earnings'
     | '/expenses'
     | '/movements'
+    | '/settings'
     | '/wallets'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/earnings/'
     | '/expenses/'
     | '/movements/'
+    | '/settings/'
     | '/wallets/'
     | '/buckets/$bucketId/edit'
     | '/categories/$categoryId/edit'
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   EarningsIndexRoute: typeof EarningsIndexRoute
   ExpensesIndexRoute: typeof ExpensesIndexRoute
   MovementsIndexRoute: typeof MovementsIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
   WalletsIndexRoute: typeof WalletsIndexRoute
   BucketsBucketIdEditRoute: typeof BucketsBucketIdEditRoute
   CategoriesCategoryIdEditRoute: typeof CategoriesCategoryIdEditRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       path: '/wallets'
       fullPath: '/wallets/'
       preLoaderRoute: typeof WalletsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/movements/': {
@@ -492,6 +512,7 @@ const rootRouteChildren: RootRouteChildren = {
   EarningsIndexRoute: EarningsIndexRoute,
   ExpensesIndexRoute: ExpensesIndexRoute,
   MovementsIndexRoute: MovementsIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
   WalletsIndexRoute: WalletsIndexRoute,
   BucketsBucketIdEditRoute: BucketsBucketIdEditRoute,
   CategoriesCategoryIdEditRoute: CategoriesCategoryIdEditRoute,
