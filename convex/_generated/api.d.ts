@@ -16,6 +16,7 @@ import type * as earnings from "../earnings.js";
 import type * as expense_groups from "../expense_groups.js";
 import type * as expenses from "../expenses.js";
 import type * as http from "../http.js";
+import type * as mcp from "../mcp.js";
 import type * as mcp_tokens from "../mcp_tokens.js";
 import type * as movements from "../movements.js";
 import type * as users from "../users.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   expense_groups: typeof expense_groups;
   expenses: typeof expenses;
   http: typeof http;
+  mcp: typeof mcp;
   mcp_tokens: typeof mcp_tokens;
   movements: typeof movements;
   users: typeof users;

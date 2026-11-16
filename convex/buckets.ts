@@ -1,6 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const DEFAULT_BUCKETS = [
@@ -26,6 +26,16 @@ export const getBuckets = query({
     return buckets.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
     );
+  },
+});
+
+export const getBucketsInternal = internalQuery({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query("buckets")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
   },
 });
 

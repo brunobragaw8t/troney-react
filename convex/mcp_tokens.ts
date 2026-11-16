@@ -6,7 +6,7 @@ import {
   query,
 } from "./_generated/server";
 import { requireAuth } from "./auth";
-const TOKEN_PREFIX = "trny_";
+export const TOKEN_PREFIX = "trny_";
 const TOKEN_BYTES = 16; // 32 hex characters
 
 function generateToken() {
@@ -19,7 +19,7 @@ function generateToken() {
   );
 }
 
-async function hashToken(token: string) {
+export async function hashToken(token: string) {
   const digest = await crypto.subtle.digest(
     "SHA-256",
     new TextEncoder().encode(token),

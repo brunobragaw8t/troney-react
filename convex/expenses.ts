@@ -1,7 +1,14 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import {
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import type { MutationCtx } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const getExpenses = query({
@@ -56,6 +63,73 @@ export const getExpense = query({
   },
 });
 
+type CreateExpenseArgs = {
+  walletId: Id<"wallets">;
+  bucketId: Id<"buckets">;
+  categoryId: Id<"categories">;
+  title: string;
+  description: string;
+  value: number;
+  source: string;
+  date: string;
+};
+
+async function createExpenseForUser(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  args: CreateExpenseArgs,
+) {
+  const title = args.title.trim();
+  if (title.length < 1) throw new ConvexError("Title is required");
+  if (title.length > 100)
+    throw new ConvexError("Title must be 100 characters or less");
+
+  const description = args.description.trim();
+  if (description.length > 255)
+    throw new ConvexError("Description must be 255 characters or less");
+
+  const source = args.source.trim();
+  if (source.length > 100)
+    throw new ConvexError("Source must be 100 characters or less");
+
+  const wallet = await ctx.db.get(args.walletId);
+  if (!wallet || wallet.userId !== userId) {
+    throw new ConvexError("Please select a valid wallet");
+  }
+
+  const bucket = await ctx.db.get(args.bucketId);
+  if (!bucket || bucket.userId !== userId) {
+    throw new ConvexError("Please select a valid bucket");
+  }
+
+  const category = await ctx.db.get(args.categoryId);
+  if (!category || category.userId !== userId) {
+    throw new ConvexError("Please select a valid category");
+  }
+
+  const expenseId = await ctx.db.insert("expenses", {
+    userId,
+    walletId: args.walletId,
+    bucketId: args.bucketId,
+    categoryId: args.categoryId,
+    title,
+    description,
+    value: args.value,
+    source,
+    date: args.date,
+  });
+
+  await ctx.db.patch(args.walletId, {
+    balance: wallet.balance - args.value,
+  });
+
+  await ctx.db.patch(args.bucketId, {
+    balance: bucket.balance - args.value,
+  });
+
+  return expenseId;
+}
+
 export const createExpense = mutation({
   args: {
     walletId: v.id("wallets"),
@@ -70,55 +144,64 @@ export const createExpense = mutation({
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
 
-    const title = args.title.trim();
-    if (title.length < 1) throw new ConvexError("Title is required");
-    if (title.length > 100)
-      throw new ConvexError("Title must be 100 characters or less");
+    return createExpenseForUser(ctx, userId, args);
+  },
+});
 
-    const description = args.description.trim();
-    if (description.length > 255)
-      throw new ConvexError("Description must be 255 characters or less");
+export const createExpenseInternal = internalMutation({
+  args: {
+    userId: v.id("users"),
+    walletId: v.id("wallets"),
+    bucketId: v.id("buckets"),
+    categoryId: v.id("categories"),
+    title: v.string(),
+    description: v.string(),
+    value: v.number(),
+    source: v.string(),
+    date: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { userId, ...expense } = args;
 
-    const source = args.source.trim();
-    if (source.length > 100)
-      throw new ConvexError("Source must be 100 characters or less");
+    return createExpenseForUser(ctx, userId, expense);
+  },
+});
 
-    const wallet = await ctx.db.get(args.walletId);
-    if (!wallet || wallet.userId !== userId) {
-      throw new ConvexError("Please select a valid wallet");
-    }
+export const getExpensesInternal = internalQuery({
+  args: {
+    userId: v.id("users"),
+    dateFrom: v.string(),
+    dateToExclusive: v.string(),
+    limit: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const expenses = await ctx.db
+      .query("expenses")
+      .withIndex("by_userId_date", (q) =>
+        q
+          .eq("userId", args.userId)
+          .gte("date", args.dateFrom)
+          .lt("date", args.dateToExclusive),
+      )
+      .order("desc")
+      .take(args.limit);
 
-    const bucket = await ctx.db.get(args.bucketId);
-    if (!bucket || bucket.userId !== userId) {
-      throw new ConvexError("Please select a valid bucket");
-    }
+    return Promise.all(
+      expenses.map(async (expense) => {
+        const [wallet, bucket, category] = await Promise.all([
+          ctx.db.get(expense.walletId),
+          ctx.db.get(expense.bucketId),
+          ctx.db.get(expense.categoryId),
+        ]);
 
-    const category = await ctx.db.get(args.categoryId);
-    if (!category || category.userId !== userId) {
-      throw new ConvexError("Please select a valid category");
-    }
-
-    const expenseId = await ctx.db.insert("expenses", {
-      userId,
-      walletId: args.walletId,
-      bucketId: args.bucketId,
-      categoryId: args.categoryId,
-      title,
-      description,
-      value: args.value,
-      source,
-      date: args.date,
-    });
-
-    await ctx.db.patch(args.walletId, {
-      balance: wallet.balance - args.value,
-    });
-
-    await ctx.db.patch(args.bucketId, {
-      balance: bucket.balance - args.value,
-    });
-
-    return expenseId;
+        return {
+          ...expense,
+          walletName: wallet?.name ?? "No wallet",
+          bucketName: bucket?.name ?? "No bucket",
+          categoryName: category?.name ?? "No category",
+        };
+      }),
+    );
   },
 });
 

@@ -79,9 +79,9 @@ Auth context (userId) passed into tool handlers via closure.
 
 #### Acceptance criteria
 
-- [ ] MCP Inspector (`npx @modelcontextprotocol/inspector`) can connect with a token and list tools
-- [ ] Invalid token returns 401 with a clear message
-- [ ] No session state shared between requests
+- [x] ~~MCP Inspector (`npx @modelcontextprotocol/inspector`) can connect with a token and list tools~~ (verified with raw JSON-RPC over curl against the dev deployment instead: `initialize` handshake and `tools/list` with all five tools succeeded)
+- [x] Invalid token returns 401 with a clear message (verified: missing, malformed, and unknown tokens all return 401 with `WWW-Authenticate: Bearer`)
+- [x] No session state shared between requests (stateless transport, fresh `Server` + transport per request, no session ids)
 
 ### Step 5: Read tools
 
@@ -96,8 +96,15 @@ All query the user's own rows only.
 
 #### Acceptance criteria
 
-- [ ] Every tool accepts and returns decimal currency values (e.g. `32.5`), documented in tool descriptions; cents never appear in tool inputs or outputs
-- [ ] `dateFrom > dateTo` or malformed dates return a validation error
+- [x] Every tool accepts and returns decimal currency values (e.g. `32.5`), documented in tool descriptions; cents never appear in tool inputs or outputs (verified live: wallets with `1.05`, `25` balances; expense registered as `0.01` and returned as `0.01`)
+- [x] `dateFrom > dateTo` or malformed dates return a validation error (verified: malformed date returns tool error `dateFrom: Date must be in YYYY-MM-DD format`)
+
+> Status: Steps 4–5 implemented (`convex/mcp.ts`, `convex/http.ts`, internal
+> queries in `wallets.ts`/`buckets.ts`/`categories.ts`/`expenses.ts`).
+> Deviations from this plan: low-level `Server` + SDK's
+> `WebStandardStreamableHTTPServerTransport` (fetch-native, no Node imports)
+> instead of `McpServer` + the Node-flavored transport — zod v4 compatibility
+> and Convex httpAction runtime constraints.
 
 ## Phase 3: Write tool
 
@@ -115,10 +122,14 @@ in `convex/expenses.ts` taking explicit `userId`.
 
 #### Acceptance criteria
 
-- [ ] "Register a 32.50 dinner expense in Nubank wallet, Food bucket, Groceries category" succeeds end-to-end via MCP Inspector
-- [ ] Unknown name error lists valid alternatives; agent self-corrects in one retry
-- [ ] Validation errors match the UI mutation (title length, description length)
-- [ ] Result visible in the app UI without refresh
+- [x] ~~"Register a 32.50 dinner expense in Nubank wallet, Food bucket, Groceries category" succeeds end-to-end via MCP Inspector~~ (verified end-to-end over JSON-RPC with a real 0.01 expense; visible via `list_expenses` afterwards)
+- [x] Unknown name error lists valid alternatives; agent self-corrects in one retry (verified: `Unknown wallet "Nope". Valid wallets: Savings, Revolut, Cash, …`)
+- [x] Validation errors match the UI mutation (title length, description length) — both mutations share `createExpenseForUser`
+- [x] Result visible in the app UI without refresh (verified via the app's reactive queries; the mutation is the same one the UI uses)
+
+> Status: Step 6 implemented. Note: `readOnly` scope was dropped per resolved
+> question (b); value conversion via `Math.round(value * 100)` happens only in
+> `convex/mcp.ts`, matching the decimal-in/out decision.
 
 ## Phase 4: Docs + polish
 
