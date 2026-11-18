@@ -23,6 +23,7 @@ and here's the [Storybook](https://troney-storybook.vercel.app/)
 ## ToDo and milestones
 
 - [x] Add expense groups (for supermark groceries)
+- [x] Add first-party MCP server for AI agents (personal access tokens, expenses tools)
 - [ ] Add profile page
 - [ ] Allow to delete account
 - [ ] Add autocomplete of previously registered expenses, with price

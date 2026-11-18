@@ -18,6 +18,9 @@ Troney should expose its functionality as a first-party MCP server, so users can
 - In-browser WebMCP tools (separate, later feature).
 - Tools for movements, expense groups, earnings, or recurring expenses
   (can be added incrementally on the same foundation — v1 is expenses-only).
+  Existing expense-group line items are visible via `list_expenses` with their
+  `groupId`, but there are no group-specific tools and agents cannot create
+  groups.
 - Read-only vs read-write token scopes (single-user app; all tokens read-write).
 
 ## User stories
@@ -36,20 +39,25 @@ Troney should expose its functionality as a first-party MCP server, so users can
 ## Tool surface (v1)
 
 Read:
+
 - `list_wallets`, `list_buckets`, `list_categories` — context for resolving
   names.
 - `list_expenses(dateFrom, dateTo?, limit?)` — paginated recent expenses with
-  resolved names.
+  resolved names, including expense-group line items (non-null `groupId`).
 
 Write:
+
 - `register_expense(title, value, date, wallet, bucket, category, description?,
-  source?)` — resolves names to IDs and returns the created expense.
+source?)` — resolves names to IDs and returns the created expense.
 
 ## Money format
 
 All tools accept and return decimal currency values (e.g. `32.5`), matching
 what agents read off receipts. Conversion to integer cents happens internally
-only; it never leaks into tool inputs or outputs.
+only; it never leaks into tool inputs or outputs. Only exact-cent amounts are
+accepted — sub-cent values (e.g. `0.001`) and binary-float artifacts (e.g.
+`1.005`) are rejected rather than silently rounded. Dates are calendar-valid
+`YYYY-MM-DD` strings.
 
 Errors are structured and actionable: unknown wallet/bucket/category returns
 the list of valid names so the agent can self-correct in one round trip.
@@ -76,8 +84,10 @@ read-write.
 
 - Convex `httpAction` on the existing HTTP router (`convex/http.ts`), path
   `/api/mcp`.
-- `@modelcontextprotocol/sdk` `McpServer` + stateless `StreamableHTTPServerTransport`
-  (JSON responses, no long-lived SSE — fits Convex httpAction model).
+- `@modelcontextprotocol/sdk` low-level `Server` + stateless
+  `WebStandardStreamableHTTPServerTransport` (JSON responses, no long-lived SSE
+  — fits Convex httpAction model and avoids zod-version coupling). Tool JSON
+  Schemas are derived from the Zod argument schemas via `z.toJSONSchema`.
 - Tool handlers use `ctx.runQuery`/`ctx.runMutation` against **internal**
   queries/mutations that take an explicit `userId` (resolved from the token),
   sharing validation logic with the public mutations.

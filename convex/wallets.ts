@@ -1,12 +1,21 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import type { QueryCtx } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const DEFAULT_WALLETS = [
   { name: "Bank", balance: 0 },
   { name: "Cash", balance: 0 },
 ] as const;
+
+function getWalletsForUser(ctx: QueryCtx, userId: Id<"users">) {
+  return ctx.db
+    .query("wallets")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .collect();
+}
 
 export const getWallets = query({
   args: {},
@@ -15,10 +24,7 @@ export const getWallets = query({
 
     if (!userId) return null;
 
-    const wallets = await ctx.db
-      .query("wallets")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
+    const wallets = await getWalletsForUser(ctx, userId);
 
     return wallets.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
@@ -28,12 +34,7 @@ export const getWallets = query({
 
 export const getWalletsInternal = internalQuery({
   args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    return ctx.db
-      .query("wallets")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .collect();
-  },
+  handler: async (ctx, args) => getWalletsForUser(ctx, args.userId),
 });
 
 export const getWallet = query({

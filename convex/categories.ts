@@ -1,6 +1,8 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import type { QueryCtx } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const DEFAULT_CATEGORIES = [
@@ -17,6 +19,13 @@ export const DEFAULT_CATEGORIES = [
   { name: "Other", icon: "❓", color: "#6b7280" },
 ] as const;
 
+function getCategoriesForUser(ctx: QueryCtx, userId: Id<"users">) {
+  return ctx.db
+    .query("categories")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .collect();
+}
+
 export const getCategories = query({
   args: {},
   handler: async (ctx) => {
@@ -24,10 +33,7 @@ export const getCategories = query({
 
     if (!userId) return null;
 
-    const categories = await ctx.db
-      .query("categories")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
+    const categories = await getCategoriesForUser(ctx, userId);
 
     return categories.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
@@ -37,12 +43,7 @@ export const getCategories = query({
 
 export const getCategoriesInternal = internalQuery({
   args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    return ctx.db
-      .query("categories")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .collect();
-  },
+  handler: async (ctx, args) => getCategoriesForUser(ctx, args.userId),
 });
 
 export const getCategory = query({

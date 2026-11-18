@@ -130,17 +130,19 @@ async function createExpenseForUser(
   return expenseId;
 }
 
+const createExpenseArgs = {
+  walletId: v.id("wallets"),
+  bucketId: v.id("buckets"),
+  categoryId: v.id("categories"),
+  title: v.string(),
+  description: v.string(),
+  value: v.number(),
+  source: v.string(),
+  date: v.string(),
+};
+
 export const createExpense = mutation({
-  args: {
-    walletId: v.id("wallets"),
-    bucketId: v.id("buckets"),
-    categoryId: v.id("categories"),
-    title: v.string(),
-    description: v.string(),
-    value: v.number(),
-    source: v.string(),
-    date: v.string(),
-  },
+  args: createExpenseArgs,
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
 
@@ -149,17 +151,7 @@ export const createExpense = mutation({
 });
 
 export const createExpenseInternal = internalMutation({
-  args: {
-    userId: v.id("users"),
-    walletId: v.id("wallets"),
-    bucketId: v.id("buckets"),
-    categoryId: v.id("categories"),
-    title: v.string(),
-    description: v.string(),
-    value: v.number(),
-    source: v.string(),
-    date: v.string(),
-  },
+  args: { userId: v.id("users"), ...createExpenseArgs },
   handler: async (ctx, args) => {
     const { userId, ...expense } = args;
 
@@ -171,18 +163,19 @@ export const getExpensesInternal = internalQuery({
   args: {
     userId: v.id("users"),
     dateFrom: v.string(),
-    dateToExclusive: v.string(),
+    dateToExclusive: v.optional(v.string()),
     limit: v.number(),
   },
   handler: async (ctx, args) => {
     const expenses = await ctx.db
       .query("expenses")
-      .withIndex("by_userId_date", (q) =>
-        q
-          .eq("userId", args.userId)
-          .gte("date", args.dateFrom)
-          .lt("date", args.dateToExclusive),
-      )
+      .withIndex("by_userId_date", (q) => {
+        const range = q.eq("userId", args.userId).gte("date", args.dateFrom);
+
+        return args.dateToExclusive
+          ? range.lt("date", args.dateToExclusive)
+          : range;
+      })
       .order("desc")
       .take(args.limit);
 

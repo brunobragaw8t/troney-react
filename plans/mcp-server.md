@@ -5,13 +5,13 @@
 ## Architectural decisions
 
 - **Library:** `@modelcontextprotocol/sdk` (new dependency, install via `bun add @modelcontextprotocol/sdk`)
-- **Endpoint:** Convex `httpAction` mounted in `convex/http.ts` at `/api/mcp` (POST + DELETE)
-- **Transport:** stateless `StreamableHTTPServerTransport` with `enableJsonResponse: true`; each POST is self-contained, no long-lived SSE (compatible with Convex httpAction request/response model)
+- **Endpoint:** Convex `httpAction` mounted in `convex/http.ts` at `/api/mcp` (POST only; GET/DELETE return 405)
+- **Transport:** stateless `WebStandardStreamableHTTPServerTransport` with `enableJsonResponse: true`; each POST is self-contained, no long-lived SSE (compatible with Convex httpAction request/response model)
 - **Auth:** `Authorization: Bearer <token>`; token hashed with SHA-256, looked up in new `mcpTokens` table; token resolution via `ctx.runQuery` on an internal query
 - **Data access:** tool handlers call `ctx.runQuery`/`ctx.runMutation` on **internal** functions that accept explicit `userId`; no reliance on convex-auth session cookies
 - **Name resolution:** `register_expense` resolves wallet/bucket/category by exact (case-insensitive) name; on miss, throws a `ConvexError` listing valid names
-- **Money:** tools accept and return decimal currency values (e.g. `32.5`); conversion to integer cents (`Math.round(value * 100)`) is an internal storage detail that never leaks into tool inputs or outputs
-- **Dates:** `YYYY-MM-DD` strings, validated format, matching existing storage convention
+- **Money:** tools accept and return decimal currency values (e.g. `32.5`); conversion to integer cents parses the number's decimal string, rejecting sub-cent and binary-float artifacts (e.g. `1.005`, `2.675`), and never leaks cents into tool inputs or outputs
+- **Dates:** `YYYY-MM-DD` strings, calendar-validated (round-tripped through `Date`), matching existing storage convention; an open-ended upper bound has no sentinel exclusive date
 - **New files:** `convex/mcp.ts` (server + tools), `convex/mcp_tokens.ts` (token CRUD + schema helpers), settings UI under `src/components/settings/`
 
 ---
@@ -68,12 +68,12 @@ last used), revoke button.
 
 ### Step 4: MCP server scaffold in `convex/mcp.ts`
 
-Create `McpServer` with name `troney` and version; wrap with stateless `StreamableHTTPServerTransport`. Export a `convex/http.ts` httpAction `POST /api/mcp` that:
+Create a low-level `Server` with name `troney` and version; wrap with stateless `WebStandardStreamableHTTPServerTransport`. Export a `convex/http.ts` httpAction `POST /api/mcp` that:
 
 1. Parses the `Authorization: Bearer` header; 401 JSON error if missing/invalid.
-2. Instantiates a fresh `McpServer` + transport per request (stateless pattern).
+2. Instantiates a fresh `Server` + transport per request (stateless pattern).
 3. Connects, handles the JSON-RPC message via `transport.handleRequest`, returns the JSON response with `Mcp-Session-Id` omitted (stateless) and correct `Content-Type`.
-4. DELETE returns 405; session-based reconnects are unsupported by design.
+4. Non-POST requests return 405; session-based reconnects are unsupported by design.
 
 Auth context (userId) passed into tool handlers via closure.
 
@@ -90,14 +90,14 @@ Register tools with Zod schemas and plain-text-for-clients descriptions:
 - `list_wallets()` → `{ name, balance }[]`
 - `list_buckets()` → `{ name, budget, balance }[]`
 - `list_categories()` → `{ name }[]`
-- `list_expenses(dateFrom, dateTo?, limit?)` → latest first, `{ title, value, date, wallet, bucket, category, description, source }`
+- `list_expenses(dateFrom, dateTo?, limit?)` → latest first, `{ groupId, title, value, date, wallet, bucket, category, description, source }`; `groupId` is non-null for line items of an expense group (no separate group-total row)
 
 All query the user's own rows only.
 
 #### Acceptance criteria
 
 - [x] Every tool accepts and returns decimal currency values (e.g. `32.5`), documented in tool descriptions; cents never appear in tool inputs or outputs (verified live: wallets with `1.05`, `25` balances; expense registered as `0.01` and returned as `0.01`)
-- [x] `dateFrom > dateTo` or malformed dates return a validation error (verified: malformed date returns tool error `dateFrom: Date must be in YYYY-MM-DD format`)
+- [x] `dateFrom > dateTo`, malformed dates, and impossible calendar dates (e.g. `2026-02-30`) return a validation error (verified: `dateFrom: Date must be a valid YYYY-MM-DD date`)
 
 > Status: Steps 4–5 implemented (`convex/mcp.ts`, `convex/http.ts`, internal
 > queries in `wallets.ts`/`buckets.ts`/`categories.ts`/`expenses.ts`).
@@ -116,7 +116,7 @@ Args: `title` (1–100 chars), `value` (positive number, decimal currency), `dat
 
 Handler: resolve each name case-insensitively against the user's
 wallets/buckets/categories; on any miss, error listing valid names. Convert
-`value` to cents (`Math.round(value * 100)`). Reuse `createExpense` validation
+`value` to cents via exact-decimal parsing (rejecting sub-cent and binary-float artifacts). Reuse `createExpense` validation
 by extracting shared logic into an internal mutation `createExpenseInternal`
 in `convex/expenses.ts` taking explicit `userId`.
 
@@ -128,8 +128,17 @@ in `convex/expenses.ts` taking explicit `userId`.
 - [x] Result visible in the app UI without refresh (verified via the app's reactive queries; the mutation is the same one the UI uses)
 
 > Status: Step 6 implemented. Note: `readOnly` scope was dropped per resolved
-> question (b); value conversion via `Math.round(value * 100)` happens only in
-> `convex/mcp.ts`, matching the decimal-in/out decision.
+> question (b); exact-cent value conversion happens only in `convex/mcp.ts`,
+> matching the decimal-in/out decision.
+
+> Review fixes (after commit `ed46efc`): exact-cent parsing and calendar-date
+> validation; tool JSON Schemas derived from Zod via `z.toJSONSchema` (no
+> hand-written schemas or local schema interfaces); non-POST requests return
+> 405; Bearer scheme parsed case-insensitively; `error.data` and `touchLastUsed`
+> hardened; grouped expenses included in `list_expenses` with a `groupId` on
+> each line item; shared validators
+> and query helpers extracted. Idempotency keys and a test runner were
+> explicitly deferred by the user.
 
 ## Phase 4: Docs + polish
 

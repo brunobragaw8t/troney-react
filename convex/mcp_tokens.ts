@@ -117,6 +117,10 @@ export const getUserIdByToken = internalQuery({
 export const touchLastUsed = internalMutation({
   args: { id: v.id("mcpTokens") },
   handler: async (ctx, args) => {
+    // The token may have been revoked between lookup and this patch.
+    const token = await ctx.db.get(args.id);
+    if (!token) return;
+
     await ctx.db.patch(args.id, { lastUsedAt: Date.now() });
   },
 });

@@ -6,6 +6,7 @@ import {
   ListToolsRequestSchema,
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { ConvexError } from "convex/values";
 import z from "zod";
 import { internal } from "./_generated/api";
@@ -14,46 +15,107 @@ import { hashToken, TOKEN_PREFIX } from "./mcp_tokens";
 
 const SERVER_NAME = "troney";
 const SERVER_VERSION = "0.1.0";
+const MAX_DATE = "9999-12-31";
+const BEARER_HEADER_RE = /^Bearer\s+(\S+)$/i;
 
 // Tools accept and return decimal currency values (32.5 means 32.50);
 // storage is integer cents, so conversion happens only at this boundary.
 const centsToDecimal = (cents: number) => cents / 100;
-const decimalToCents = (value: number) => Math.round(value * 100);
 
-const dateStringSchema = z
+const DECIMAL_CENTS_RE = /^(\d+)(?:\.(\d{1,2}))?$/;
+
+function toCents(value: number): number | null {
+  if (!Number.isFinite(value)) return null;
+
+  const match = DECIMAL_CENTS_RE.exec(value.toString());
+  if (!match) return null;
+
+  const cents =
+    Number(match[1]) * 100 + Number((match[2] ?? "").padEnd(2, "0"));
+
+  return Number.isSafeInteger(cents) ? cents : null;
+}
+
+function hasExactCents(value: number): boolean {
+  return toCents(value) !== null;
+}
+
+function decimalToCents(value: number): number {
+  const cents = toCents(value);
+
+  if (cents === null) {
+    throw new ConvexError(
+      "Amount must be a positive number with at most 2 decimal places (e.g. 32.5)",
+    );
+  }
+
+  return cents;
+}
+
+function isCalendarDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+  const date = new Date(`${value}T00:00:00Z`);
+
+  return (
+    !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  );
+}
+
+function nextDay(date: string): string {
+  const next = new Date(`${date}T00:00:00Z`);
+  next.setUTCDate(next.getUTCDate() + 1);
+
+  return next.toISOString().slice(0, 10);
+}
+
+function findByName<T extends { name: string }>(
+  items: T[],
+  wanted: string,
+): T | null {
+  return (
+    items.find((item) => item.name.toLowerCase() === wanted.toLowerCase()) ??
+    null
+  );
+}
+
+function unknownMessage(
+  kind: string,
+  wanted: string,
+  items: { name: string }[],
+) {
+  return `Unknown ${kind} "${wanted}". Valid ${kind}s: ${items
+    .map((item) => item.name)
+    .join(", ")}`;
+}
+
+const dateSchema = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format");
+  .refine(isCalendarDate, "Date must be a valid YYYY-MM-DD date");
 
-interface JsonSchemaProperty {
-  type: "string" | "number" | "integer";
-  description?: string;
-}
+const moneySchema = z
+  .number()
+  .positive("Amount must be greater than 0")
+  .refine(
+    hasExactCents,
+    "Amount must have at most 2 decimal places (e.g. 32.5)",
+  )
+  .meta({ description: "Positive amount in decimal currency (e.g. 32.5)" });
 
-interface JsonSchemaObject {
-  type: "object";
-  properties: Record<string, JsonSchemaProperty>;
-  required?: string[];
-  additionalProperties: false;
-}
-
-interface McpTool {
-  name: string;
-  description: string;
-  inputSchema: JsonSchemaObject;
+interface McpTool extends Tool {
   call: (rawArgs: unknown) => Promise<unknown>;
 }
 
 function defineTool<Args>(tool: {
   name: string;
   description: string;
-  inputSchema: JsonSchemaObject;
   args: z.ZodType<Args>;
   handler: (args: Args) => Promise<unknown>;
 }): McpTool {
   return {
     name: tool.name,
     description: tool.description,
-    inputSchema: tool.inputSchema,
+    inputSchema: z.toJSONSchema(tool.args) as Tool["inputSchema"],
     call: async (rawArgs) => {
       const parsed = tool.args.safeParse(rawArgs ?? {});
 
@@ -74,14 +136,16 @@ function defineTool<Args>(tool: {
   };
 }
 
-function nextDay(date: string) {
-  const next = new Date(`${date}T00:00:00Z`);
-  next.setUTCDate(next.getUTCDate() + 1);
-
-  return next.toISOString().slice(0, 10);
-}
-
 export const mcpHandler = httpAction(async (ctx, request) => {
+  // GET would open a long-lived SSE stream and DELETE would be answered with
+  // 200 by the stateless transport; neither belongs in a Convex httpAction.
+  if (request.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json", Allow: "POST" },
+    });
+  }
+
   const unauthorized = () =>
     new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
@@ -91,14 +155,12 @@ export const mcpHandler = httpAction(async (ctx, request) => {
       },
     });
 
-  const authorization = request.headers.get("Authorization");
-  if (!authorization?.startsWith(`Bearer ${TOKEN_PREFIX}`)) {
-    return unauthorized();
-  }
+  const bearer = BEARER_HEADER_RE.exec(
+    request.headers.get("Authorization") ?? "",
+  );
+  if (!bearer || !bearer[1].startsWith(TOKEN_PREFIX)) return unauthorized();
 
-  const token = authorization.slice("Bearer ".length).trim();
-  const tokenHash = await hashToken(token);
-
+  const tokenHash = await hashToken(bearer[1]);
   const matched = await ctx.runQuery(internal.mcp_tokens.getUserIdByToken, {
     tokenHash,
   });
@@ -116,18 +178,11 @@ export const mcpHandler = httpAction(async (ctx, request) => {
       name: "list_wallets",
       description:
         "List the user's wallets with their current balances. Balances are decimal currency (32.5 means 32.50).",
-      inputSchema: {
-        type: "object",
-        properties: {},
-        additionalProperties: false,
-      },
       args: z.object({}),
       handler: async () => {
         const wallets = await ctx.runQuery(
           internal.wallets.getWalletsInternal,
-          {
-            userId,
-          },
+          { userId },
         );
 
         return wallets.map((wallet) => ({
@@ -140,18 +195,11 @@ export const mcpHandler = httpAction(async (ctx, request) => {
       name: "list_buckets",
       description:
         "List the user's buckets with their budget (percentage of income) and current balance. Balances are decimal currency.",
-      inputSchema: {
-        type: "object",
-        properties: {},
-        additionalProperties: false,
-      },
       args: z.object({}),
       handler: async () => {
         const buckets = await ctx.runQuery(
           internal.buckets.getBucketsInternal,
-          {
-            userId,
-          },
+          { userId },
         );
 
         return buckets.map((bucket) => ({
@@ -164,11 +212,6 @@ export const mcpHandler = httpAction(async (ctx, request) => {
     defineTool({
       name: "list_categories",
       description: "List the user's expense category names.",
-      inputSchema: {
-        type: "object",
-        properties: {},
-        additionalProperties: false,
-      },
       args: z.object({}),
       handler: async () => {
         const categories = await ctx.runQuery(
@@ -182,56 +225,42 @@ export const mcpHandler = httpAction(async (ctx, request) => {
     defineTool({
       name: "list_expenses",
       description:
-        "List registered expenses in a date range, latest first. Dates are inclusive YYYY-MM-DD strings. Values are decimal currency.",
-      inputSchema: {
-        type: "object",
-        properties: {
-          dateFrom: {
-            type: "string",
-            description: "Start date (YYYY-MM-DD), inclusive",
-          },
-          dateTo: {
-            type: "string",
-            description: "End date (YYYY-MM-DD), inclusive",
-          },
-          limit: {
-            type: "integer",
-            description:
-              "Maximum number of expenses to return (default 20, max 100)",
-          },
-        },
-        required: ["dateFrom"],
-        additionalProperties: false,
-      },
+        "List registered expenses in a date range, latest first. Dates are inclusive YYYY-MM-DD strings. Values are decimal currency. Includes individual line items of expense groups: those rows have a non-null groupId identifying the single purchase they belong to. No separate group-total row is returned, so summing the rows gives actual spend.",
       args: z.object({
-        dateFrom: dateStringSchema,
-        dateTo: dateStringSchema.optional(),
-        limit: z.number().int().min(1).max(100).optional(),
+        dateFrom: dateSchema.meta({
+          description: "Start date (YYYY-MM-DD), inclusive",
+        }),
+        dateTo: dateSchema.optional().meta({
+          description: "End date (YYYY-MM-DD), inclusive",
+        }),
+        limit: z.number().int().min(1).max(100).optional().meta({
+          description:
+            "Maximum number of expenses to return (default 20, max 100)",
+        }),
       }),
       handler: async (args) => {
         if (args.dateTo && args.dateTo < args.dateFrom) {
           throw new ConvexError("dateTo must be on or after dateFrom");
         }
 
-        const expenses: Array<{
-          _id: string;
-          title: string;
-          value: number;
-          date: string;
-          description: string;
-          source: string;
-          walletName: string;
-          bucketName: string;
-          categoryName: string;
-        }> = await ctx.runQuery(internal.expenses.getExpensesInternal, {
-          userId,
-          dateFrom: args.dateFrom,
-          dateToExclusive: args.dateTo ? nextDay(args.dateTo) : "9999-12-31",
-          limit: args.limit ?? 20,
-        });
+        const dateToExclusive =
+          args.dateTo && args.dateTo < MAX_DATE
+            ? nextDay(args.dateTo)
+            : undefined;
+
+        const expenses = await ctx.runQuery(
+          internal.expenses.getExpensesInternal,
+          {
+            userId,
+            dateFrom: args.dateFrom,
+            dateToExclusive,
+            limit: args.limit ?? 20,
+          },
+        );
 
         return expenses.map((expense) => ({
           id: expense._id,
+          groupId: expense.groupId ?? null,
           title: expense.title,
           value: centsToDecimal(expense.value),
           date: expense.date,
@@ -247,43 +276,24 @@ export const mcpHandler = httpAction(async (ctx, request) => {
       name: "register_expense",
       description:
         "Register an expense. Wallet, bucket and category are matched by name, case-insensitively; call the list tools first to get valid names. The expense decreases the wallet and bucket balances. Value is decimal currency (32.5 means 32.50).",
-      inputSchema: {
-        type: "object",
-        properties: {
-          title: {
-            type: "string",
-            description: "Short description (max 100 characters)",
-          },
-          value: {
-            type: "number",
-            description: "Positive amount in decimal currency (e.g. 32.5)",
-          },
-          date: { type: "string", description: "Expense date (YYYY-MM-DD)" },
-          wallet: { type: "string", description: "Wallet name" },
-          bucket: { type: "string", description: "Bucket name" },
-          category: { type: "string", description: "Category name" },
-          description: {
-            type: "string",
-            description: "Optional longer description (max 255 characters)",
-          },
-          source: {
-            type: "string",
-            description:
-              "Optional source, like the store name (max 100 characters)",
-          },
-        },
-        required: ["title", "value", "date", "wallet", "bucket", "category"],
-        additionalProperties: false,
-      },
       args: z.object({
-        title: z.string().min(1),
-        value: z.number().positive(),
-        date: dateStringSchema,
-        wallet: z.string().min(1),
-        bucket: z.string().min(1),
-        category: z.string().min(1),
-        description: z.string().optional(),
-        source: z.string().optional(),
+        title: z
+          .string()
+          .min(1)
+          .max(100)
+          .meta({ description: "Short description (max 100 characters)" }),
+        value: moneySchema,
+        date: dateSchema.meta({ description: "Expense date (YYYY-MM-DD)" }),
+        wallet: z.string().min(1).meta({ description: "Wallet name" }),
+        bucket: z.string().min(1).meta({ description: "Bucket name" }),
+        category: z.string().min(1).meta({ description: "Category name" }),
+        description: z.string().max(255).optional().meta({
+          description: "Optional longer description (max 255 characters)",
+        }),
+        source: z.string().max(100).optional().meta({
+          description:
+            "Optional source, like the store name (max 100 characters)",
+        }),
       }),
       handler: async (args) => {
         const [wallets, buckets, categories] = await Promise.all([
@@ -291,27 +301,6 @@ export const mcpHandler = httpAction(async (ctx, request) => {
           ctx.runQuery(internal.buckets.getBucketsInternal, { userId }),
           ctx.runQuery(internal.categories.getCategoriesInternal, { userId }),
         ]);
-
-        function findByName<T extends { name: string }>(
-          items: T[],
-          wanted: string,
-        ): T | null {
-          return (
-            items.find(
-              (item) => item.name.toLowerCase() === wanted.toLowerCase(),
-            ) ?? null
-          );
-        }
-
-        function unknownMessage(
-          kind: string,
-          wanted: string,
-          items: { name: string }[],
-        ) {
-          return `Unknown ${kind} "${wanted}". Valid ${kind}s: ${items
-            .map((item) => item.name)
-            .join(", ")}`;
-        }
 
         const wallet = findByName(wallets, args.wallet);
         if (!wallet) {
@@ -398,7 +387,7 @@ export const mcpHandler = httpAction(async (ctx, request) => {
       let message = "Something went wrong. Please try again.";
 
       if (error instanceof ConvexError) {
-        message = error.data as string;
+        message = String(error.data);
       } else if (error instanceof Error) {
         // Covers McpError and other runtime errors.
         message = error.message;

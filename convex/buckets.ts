@@ -1,6 +1,8 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import type { QueryCtx } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const DEFAULT_BUCKETS = [
@@ -11,6 +13,13 @@ export const DEFAULT_BUCKETS = [
   { name: "Fun", budget: 10, balance: 0 },
 ] as const;
 
+function getBucketsForUser(ctx: QueryCtx, userId: Id<"users">) {
+  return ctx.db
+    .query("buckets")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .collect();
+}
+
 export const getBuckets = query({
   args: {},
   handler: async (ctx) => {
@@ -18,10 +27,7 @@ export const getBuckets = query({
 
     if (!userId) return null;
 
-    const buckets = await ctx.db
-      .query("buckets")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .collect();
+    const buckets = await getBucketsForUser(ctx, userId);
 
     return buckets.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
@@ -31,12 +37,7 @@ export const getBuckets = query({
 
 export const getBucketsInternal = internalQuery({
   args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    return ctx.db
-      .query("buckets")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .collect();
-  },
+  handler: async (ctx, args) => getBucketsForUser(ctx, args.userId),
 });
 
 export const getBucket = query({
