@@ -365,20 +365,24 @@ export const mcpHandler = httpAction(async (ctx, request) => {
           );
         }
 
-        await ctx.runMutation(internal.expenses.createExpenseInternal, {
-          userId,
-          walletId: wallet._id,
-          bucketId: bucket._id,
-          categoryId: category._id,
-          title: args.title,
-          description: args.description ?? "",
-          value: decimalToCents(args.value),
-          source: args.source ?? "",
-          date: args.date,
-          idempotencyKey: args.idempotencyKey,
-        });
+        const expenseId = await ctx.runMutation(
+          internal.expenses.createExpenseInternal,
+          {
+            userId,
+            walletId: wallet._id,
+            bucketId: bucket._id,
+            categoryId: category._id,
+            title: args.title,
+            description: args.description ?? "",
+            value: decimalToCents(args.value),
+            source: args.source ?? "",
+            date: args.date,
+            idempotencyKey: args.idempotencyKey,
+          },
+        );
 
         return {
+          id: expenseId,
           title: args.title,
           value: args.value,
           date: args.date,
