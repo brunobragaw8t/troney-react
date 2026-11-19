@@ -157,7 +157,7 @@ Add an `llms.txt`-style snippet page or section in settings with copy-paste conf
 
 #### Acceptance criteria
 
-- [x] Copy-paste snippets added in settings for Claude Code, Claude Desktop and generic streamable-HTTP clients (`src/components/settings/mcp-setup-section.tsx`), using `VITE_CONVEX_SITE_URL/api/mcp` and the `Authorization: Bearer <token>` header
+- [x] Copy-paste snippets added in settings for Claude Code, Claude Desktop and generic streamable-HTTP clients (`src/components/settings/mcp-setup-section.tsx`), using the HTTP actions URL (`<site>/api/mcp`) and the `Authorization: Bearer <token>` header; the site URL comes from `VITE_CONVEX_SITE_URL`, or is derived from `VITE_CONVEX_URL` when that variable isn't set (deployments)
 - [x] Connection path verified with a real MCP SDK client (`StreamableHTTPClientTransport`) connecting to the documented dev URL and listing all six tools; end-user Claude Desktop setup timing was not measured
 - [x] README.md ToDo updated with the completed MCP item
 
