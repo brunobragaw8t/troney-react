@@ -91,6 +91,7 @@ Register tools with Zod schemas and plain-text-for-clients descriptions:
 - `list_buckets()` → `{ name, budget, balance }[]`
 - `list_categories()` → `{ name }[]`
 - `list_expenses(dateFrom, dateTo?, limit?)` → latest first, `{ groupId, title, value, date, wallet, bucket, category, description, source }`; `groupId` is non-null for line items of an expense group (no separate group-total row)
+- `list_expense_groups(dateFrom?, dateTo?, limit?)` → group-level reads: `{ id, date, source, description, wallet, itemCount, total, categories, buckets }`; added after review so agents can see group totals as well as the line items
 
 All query the user's own rows only.
 
@@ -98,6 +99,7 @@ All query the user's own rows only.
 
 - [x] Every tool accepts and returns decimal currency values (e.g. `32.5`), documented in tool descriptions; cents never appear in tool inputs or outputs (verified live: wallets with `1.05`, `25` balances; expense registered as `0.01` and returned as `0.01`)
 - [x] `dateFrom > dateTo`, malformed dates, and impossible calendar dates (e.g. `2026-02-30`) return a validation error (verified: `dateFrom: Date must be a valid YYYY-MM-DD date`)
+- [x] Grouped purchases are readable: `list_expense_groups` returns group totals and `list_expenses` returns their line items with a shared non-null `groupId` (verified with a real MCP client against a two-item fixture group)
 
 > Status: Steps 4–5 implemented (`convex/mcp.ts`, `convex/http.ts`, internal
 > queries in `wallets.ts`/`buckets.ts`/`categories.ts`/`expenses.ts`).
@@ -112,7 +114,7 @@ All query the user's own rows only.
 
 ### Step 6: `register_expense` tool
 
-Args: `title` (1–100 chars), `value` (positive number, decimal currency), `date` (`YYYY-MM-DD`), `wallet`, `bucket`, `category`, `description?` (≤255), `source?`.
+Args: `title` (1–100 chars), `value` (positive number, decimal currency), `date` (`YYYY-MM-DD`), `wallet`, `bucket`, `category`, `description?` (≤255), `source?`, `idempotencyKey?` (1–100 chars). Returns the created (or reused) expense `id`.
 
 Handler: resolve each name case-insensitively against the user's
 wallets/buckets/categories; on any miss, error listing valid names. Convert
@@ -126,6 +128,7 @@ in `convex/expenses.ts` taking explicit `userId`.
 - [x] Unknown name error lists valid alternatives; agent self-corrects in one retry (verified: `Unknown wallet "Nope". Valid wallets: Savings, Revolut, Cash, …`)
 - [x] Validation errors match the UI mutation (title length, description length) — both mutations share `createExpenseForUser`
 - [x] Result visible in the app UI without refresh (verified via the app's reactive queries; the mutation is the same one the UI uses)
+- [x] Reusing an `idempotencyKey` returns the original expense `id` without inserting a second row or charging the wallet/bucket twice (verified with two identical real-client calls)
 
 > Status: Step 6 implemented. Note: `readOnly` scope was dropped per resolved
 > question (b); exact-cent value conversion happens only in `convex/mcp.ts`,
@@ -136,9 +139,13 @@ in `convex/expenses.ts` taking explicit `userId`.
 > hand-written schemas or local schema interfaces); non-POST requests return
 > 405; Bearer scheme parsed case-insensitively; `error.data` and `touchLastUsed`
 > hardened; grouped expenses included in `list_expenses` with a `groupId` on
-> each line item; shared validators
-> and query helpers extracted. Idempotency keys and a test runner were
-> explicitly deferred by the user.
+> each line item; shared validators and query helpers extracted.
+
+> Follow-ups after commit `b3a06e1`: settings connection snippets (`d3def8a`),
+> optional `idempotencyKey` (`6daf615`), `list_expense_groups` (`07db829`), and
+> the returned expense `id` (`198416e`). No test runner or committed tests:
+> verification used temporary scripts against the dev deployment, then all
+> fixture data and scripts were deleted per the user's request.
 
 ## Phase 4: Docs + polish
 
@@ -150,13 +157,15 @@ Add an `llms.txt`-style snippet page or section in settings with copy-paste conf
 
 #### Acceptance criteria
 
-- [ ] A user can connect Claude Desktop in under 2 minutes following the snippet
-- [ ] README.md ToDo updated with the completed MCP item
+- [x] Copy-paste snippets added in settings for Claude Code, Claude Desktop and generic streamable-HTTP clients (`src/components/settings/mcp-setup-section.tsx`), using `VITE_CONVEX_SITE_URL/api/mcp` and the `Authorization: Bearer <token>` header
+- [x] Connection path verified with a real MCP SDK client (`StreamableHTTPClientTransport`) connecting to the documented dev URL and listing all six tools; end-user Claude Desktop setup timing was not measured
+- [x] README.md ToDo updated with the completed MCP item
 
 ### Step 8: Deployment checks
 
-- `bun run build` passes; `npx convex dev` typegen clean; eslint clean.
-- Manual test against production deployment URL once deployed (CORS not needed for server-to-server/stdio clients; verify direct POST works from Inspector).
+- [x] `bun run build` passes; `npx convex dev` typegen clean; eslint clean (0 errors).
+- [x] Real MCP client end-to-end against the dev deployment: `initialize`, `tools/list` (six tools), group + line-item reads, and idempotent `register_expense`. All temporary fixtures, tokens and scripts were removed afterwards; no test files committed.
+- [ ] Manual test against production deployment URL once deployed (CORS not needed for server-to-server/stdio clients; verify direct POST works from Inspector). Pending: no production URL was provided.
 
 ---
 

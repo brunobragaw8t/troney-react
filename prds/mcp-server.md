@@ -16,11 +16,11 @@ Troney should expose its functionality as a first-party MCP server, so users can
   personal access tokens are the pragmatic first step, mirroring Stripe's
   "agent API key" direction).
 - In-browser WebMCP tools (separate, later feature).
-- Tools for movements, expense groups, earnings, or recurring expenses
+- Tools for movements, creation of expense groups, earnings, or recurring expenses
   (can be added incrementally on the same foundation — v1 is expenses-only).
   Existing expense-group line items are visible via `list_expenses` with their
-  `groupId`, but there are no group-specific tools and agents cannot create
-  groups.
+  `groupId` and group totals via the read-only `list_expense_groups`; agents
+  cannot create or edit groups.
 - Read-only vs read-write token scopes (single-user app; all tokens read-write).
 
 ## User stories
@@ -44,11 +44,15 @@ Read:
   names.
 - `list_expenses(dateFrom, dateTo?, limit?)` — paginated recent expenses with
   resolved names, including expense-group line items (non-null `groupId`).
+- `list_expense_groups(dateFrom?, dateTo?, limit?)` — read-only group-level
+  totals and category/bucket breakdowns.
 
 Write:
 
 - `register_expense(title, value, date, wallet, bucket, category, description?,
-source?)` — resolves names to IDs and returns the created expense.
+source?, idempotencyKey?)` — resolves names to IDs and returns the created
+  (or reused) expense `id`. A repeated `idempotencyKey` is a no-op, so agent
+  retries cannot double-charge the wallet and bucket.
 
 ## Money format
 
@@ -76,8 +80,8 @@ the list of valid names so the agent can self-correct in one round trip.
 ## Auth mechanism
 
 `Authorization: Bearer <token>` header on `POST /api/mcp`. Token is looked up
-by hash in a new `mcpTokens` table (`userId`, `tokenHash`, `name`,
-`lastUsedAt`, timestamps). Tokens are valid until revoked; all tokens are
+by hash in a new `mcpTokens` table (`userId`, `tokenHash`, `name`, `createdAt`,
+optional `lastUsedAt`). Tokens are valid until revoked; all tokens are
 read-write.
 
 ## Architecture
@@ -91,3 +95,15 @@ read-write.
 - Tool handlers use `ctx.runQuery`/`ctx.runMutation` against **internal**
   queries/mutations that take an explicit `userId` (resolved from the token),
   sharing validation logic with the public mutations.
+- Connection snippets live in settings and use the `.convex.site` URL (HTTP
+  actions), not the `.convex.cloud` client URL.
+
+## Status
+
+Implemented and verified end-to-end against the dev deployment with a real MCP
+client: six tools listed, group totals and line items read, and an idempotent
+expense registration returning the same id twice without a duplicate charge.
+Static checks pass (prettier, Convex typecheck, lint with 0 errors, build). No
+tests are committed; temporary verification scripts and fixture data were
+deleted. Production URL testing remains pending until a production deployment
+is provided.
