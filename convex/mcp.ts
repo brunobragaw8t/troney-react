@@ -22,7 +22,7 @@ const BEARER_HEADER_RE = /^Bearer\s+(\S+)$/i;
 // storage is integer cents, so conversion happens only at this boundary.
 const centsToDecimal = (cents: number) => cents / 100;
 
-const DECIMAL_CENTS_RE = /^(\d+)(?:\.(\d{1,2}))?$/;
+const DECIMAL_CENTS_RE = /^(-?)(\d+)(?:\.(\d{1,2}))?$/;
 
 function toCents(value: number): number | null {
   if (!Number.isFinite(value)) return null;
@@ -30,8 +30,9 @@ function toCents(value: number): number | null {
   const match = DECIMAL_CENTS_RE.exec(value.toString());
   if (!match) return null;
 
-  const cents =
-    Number(match[1]) * 100 + Number((match[2] ?? "").padEnd(2, "0"));
+  const magnitude =
+    Number(match[2]) * 100 + Number((match[3] ?? "").padEnd(2, "0"));
+  const cents = match[1] === "-" ? -magnitude : magnitude;
 
   return Number.isSafeInteger(cents) ? cents : null;
 }
@@ -45,7 +46,7 @@ function decimalToCents(value: number): number {
 
   if (cents === null) {
     throw new ConvexError(
-      "Amount must be a positive number with at most 2 decimal places (e.g. 32.5)",
+      "Amount must be a non-zero number with at most 2 decimal places (e.g. 32.5)",
     );
   }
 
@@ -95,12 +96,15 @@ const dateSchema = z
 
 const moneySchema = z
   .number()
-  .positive("Amount must be greater than 0")
+  .refine((value) => value !== 0, "Amount must not be zero")
   .refine(
     hasExactCents,
     "Amount must have at most 2 decimal places (e.g. 32.5)",
   )
-  .meta({ description: "Positive amount in decimal currency (e.g. 32.5)" });
+  .meta({
+    description:
+      "Non-zero amount in decimal currency (e.g. 32.5). Negative values register a refund, which increases the wallet and bucket balances",
+  });
 
 interface McpTool extends Tool {
   call: (rawArgs: unknown) => Promise<unknown>;
@@ -317,7 +321,7 @@ export const mcpHandler = httpAction(async (ctx, request) => {
     defineTool({
       name: "register_expense",
       description:
-        "Register an expense. Wallet, bucket and category are matched by name, case-insensitively; call the list tools first to get valid names. The expense decreases the wallet and bucket balances. Value is decimal currency (32.5 means 32.50).",
+        "Register an expense. Wallet, bucket and category are matched by name, case-insensitively; call the list tools first to get valid names. The expense decreases the wallet and bucket balances; a negative value registers a refund and increases them. Value is decimal currency (32.5 means 32.50).",
       args: z.object({
         title: z
           .string()
