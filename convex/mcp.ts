@@ -10,6 +10,7 @@ import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { ConvexError } from "convex/values";
 import z from "zod";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
 import { hashToken, TOKEN_PREFIX } from "./mcp_tokens";
 
@@ -395,6 +396,124 @@ export const mcpHandler = httpAction(async (ctx, request) => {
           category: category.name,
           description: args.description ?? "",
           source: args.source ?? "",
+        };
+      },
+    }),
+    defineTool({
+      name: "update_expense",
+      description:
+        "Update an existing expense: change its title, value, date, description, source, wallet, bucket or category. Only the provided fields change; wallet, bucket and category are matched by name, case-insensitively. Use list_expenses to find the expense id. Balances are adjusted when the value, wallet or bucket changes.",
+      args: z.object({
+        id: z
+          .string()
+          .min(1)
+          .meta({ description: "Expense id, as returned by list_expenses" }),
+        title: z
+          .string()
+          .min(1)
+          .max(100)
+          .optional()
+          .meta({ description: "New short description (max 100 characters)" }),
+        value: moneySchema.optional().meta({
+          description:
+            "New non-zero amount in decimal currency (e.g. 32.5); negative for a refund",
+        }),
+        date: dateSchema.optional().meta({ description: "New expense date" }),
+        wallet: z
+          .string()
+          .min(1)
+          .optional()
+          .meta({ description: "New wallet name" }),
+        bucket: z
+          .string()
+          .min(1)
+          .optional()
+          .meta({ description: "New bucket name" }),
+        category: z
+          .string()
+          .min(1)
+          .optional()
+          .meta({ description: "New category name" }),
+        description: z.string().max(255).optional().meta({
+          description: "New longer description (max 255 characters)",
+        }),
+        source: z.string().max(100).optional().meta({
+          description: "New source, like the store name (max 100 characters)",
+        }),
+      }),
+      handler: async (args) => {
+        const id = args.id as Id<"expenses">;
+
+        const existing = await ctx.runQuery(
+          internal.expenses.getExpenseInternal,
+          { userId, id },
+        );
+        if (!existing) {
+          throw new ConvexError(`Expense ${args.id} not found`);
+        }
+
+        const [wallets, buckets, categories] = await Promise.all([
+          ctx.runQuery(internal.wallets.getWalletsInternal, { userId }),
+          ctx.runQuery(internal.buckets.getBucketsInternal, { userId }),
+          ctx.runQuery(internal.categories.getCategoriesInternal, { userId }),
+        ]);
+
+        function pick<T extends { _id: string; name: string }>(
+          items: T[],
+          wanted: string | undefined,
+          currentId: string,
+          kind: string,
+        ): T {
+          if (wanted !== undefined) {
+            const found = findByName(items, wanted);
+
+            if (!found)
+              throw new ConvexError(unknownMessage(kind, wanted, items));
+
+            return found;
+          }
+
+          const current = items.find((item) => item._id === currentId);
+
+          if (!current) throw new ConvexError(`Current ${kind} is missing`);
+
+          return current;
+        }
+
+        const wallet = pick(wallets, args.wallet, existing.walletId, "wallet");
+        const bucket = pick(buckets, args.bucket, existing.bucketId, "bucket");
+        const category = pick(
+          categories,
+          args.category,
+          existing.categoryId,
+          "category",
+        );
+
+        const value = args.value ?? centsToDecimal(existing.value);
+
+        await ctx.runMutation(internal.expenses.updateExpenseInternal, {
+          userId,
+          id,
+          walletId: wallet._id,
+          bucketId: bucket._id,
+          categoryId: category._id,
+          title: args.title ?? existing.title,
+          description: args.description ?? existing.description,
+          value: decimalToCents(value),
+          source: args.source ?? existing.source,
+          date: args.date ?? existing.date,
+        });
+
+        return {
+          id: args.id,
+          title: args.title ?? existing.title,
+          value,
+          date: args.date ?? existing.date,
+          wallet: wallet.name,
+          bucket: bucket.name,
+          category: category.name,
+          description: args.description ?? existing.description,
+          source: args.source ?? existing.source,
         };
       },
     }),

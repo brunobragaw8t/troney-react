@@ -174,6 +174,17 @@ export const createExpenseInternal = internalMutation({
   },
 });
 
+export const getExpenseInternal = internalQuery({
+  args: { userId: v.id("users"), id: v.id("expenses") },
+  handler: async (ctx, args) => {
+    const expense = await ctx.db.get(args.id);
+
+    if (!expense || expense.userId !== args.userId) return null;
+
+    return expense;
+  },
+});
+
 export const getExpensesInternal = internalQuery({
   args: {
     userId: v.id("users"),
@@ -213,100 +224,131 @@ export const getExpensesInternal = internalQuery({
   },
 });
 
+const updateExpenseArgs = {
+  id: v.id("expenses"),
+  walletId: v.id("wallets"),
+  bucketId: v.id("buckets"),
+  categoryId: v.id("categories"),
+  title: v.string(),
+  description: v.string(),
+  value: v.number(),
+  source: v.string(),
+  date: v.string(),
+};
+
+type UpdateExpenseArgs = {
+  id: Id<"expenses">;
+  walletId: Id<"wallets">;
+  bucketId: Id<"buckets">;
+  categoryId: Id<"categories">;
+  title: string;
+  description: string;
+  value: number;
+  source: string;
+  date: string;
+};
+
+async function updateExpenseForUser(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  args: UpdateExpenseArgs,
+) {
+  const title = args.title.trim();
+  if (title.length < 1) throw new ConvexError("Title is required");
+  if (title.length > 100)
+    throw new ConvexError("Title must be 100 characters or less");
+
+  const description = args.description.trim();
+  if (description.length > 255)
+    throw new ConvexError("Description must be 255 characters or less");
+
+  const source = args.source.trim();
+  if (source.length > 100)
+    throw new ConvexError("Source must be 100 characters or less");
+
+  const existing = await ctx.db.get(args.id);
+  if (!existing || existing.userId !== userId) {
+    throw new ConvexError(`Expense ${args.id} not found`);
+  }
+
+  const wallet = await ctx.db.get(args.walletId);
+  if (!wallet || wallet.userId !== userId) {
+    throw new ConvexError("Please select a valid wallet");
+  }
+
+  const bucket = await ctx.db.get(args.bucketId);
+  if (!bucket || bucket.userId !== userId) {
+    throw new ConvexError("Please select a valid bucket");
+  }
+
+  const category = await ctx.db.get(args.categoryId);
+  if (!category || category.userId !== userId) {
+    throw new ConvexError("Please select a valid category");
+  }
+
+  const valueDiff = args.value - existing.value;
+
+  if (existing.walletId !== args.walletId) {
+    const oldWallet = await ctx.db.get(existing.walletId);
+    if (oldWallet) {
+      await ctx.db.patch(existing.walletId, {
+        balance: oldWallet.balance + existing.value,
+      });
+    }
+    await ctx.db.patch(args.walletId, {
+      balance: wallet.balance - args.value,
+    });
+  } else {
+    await ctx.db.patch(args.walletId, {
+      balance: wallet.balance - valueDiff,
+    });
+  }
+
+  if (existing.bucketId !== args.bucketId) {
+    const oldBucket = await ctx.db.get(existing.bucketId);
+    if (oldBucket) {
+      await ctx.db.patch(existing.bucketId, {
+        balance: oldBucket.balance + existing.value,
+      });
+    }
+    await ctx.db.patch(args.bucketId, {
+      balance: bucket.balance - args.value,
+    });
+  } else {
+    await ctx.db.patch(args.bucketId, {
+      balance: bucket.balance - valueDiff,
+    });
+  }
+
+  await ctx.db.patch(args.id, {
+    walletId: args.walletId,
+    bucketId: args.bucketId,
+    categoryId: args.categoryId,
+    title,
+    description,
+    value: args.value,
+    source,
+    date: args.date,
+  });
+
+  return args.id;
+}
+
 export const updateExpense = mutation({
-  args: {
-    id: v.id("expenses"),
-    walletId: v.id("wallets"),
-    bucketId: v.id("buckets"),
-    categoryId: v.id("categories"),
-    title: v.string(),
-    description: v.string(),
-    value: v.number(),
-    source: v.string(),
-    date: v.string(),
-  },
+  args: updateExpenseArgs,
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
 
-    const title = args.title.trim();
-    if (title.length < 1) throw new ConvexError("Title is required");
-    if (title.length > 100)
-      throw new ConvexError("Title must be 100 characters or less");
+    return updateExpenseForUser(ctx, userId, args);
+  },
+});
 
-    const description = args.description.trim();
-    if (description.length > 255)
-      throw new ConvexError("Description must be 255 characters or less");
+export const updateExpenseInternal = internalMutation({
+  args: { userId: v.id("users"), ...updateExpenseArgs },
+  handler: async (ctx, args) => {
+    const { userId, ...expense } = args;
 
-    const source = args.source.trim();
-    if (source.length > 100)
-      throw new ConvexError("Source must be 100 characters or less");
-
-    const existing = await ctx.db.get(args.id);
-    if (!existing || existing.userId !== userId) {
-      throw new ConvexError(`Expense ${args.id} not found`);
-    }
-
-    const wallet = await ctx.db.get(args.walletId);
-    if (!wallet || wallet.userId !== userId) {
-      throw new ConvexError("Please select a valid wallet");
-    }
-
-    const bucket = await ctx.db.get(args.bucketId);
-    if (!bucket || bucket.userId !== userId) {
-      throw new ConvexError("Please select a valid bucket");
-    }
-
-    const category = await ctx.db.get(args.categoryId);
-    if (!category || category.userId !== userId) {
-      throw new ConvexError("Please select a valid category");
-    }
-
-    const valueDiff = args.value - existing.value;
-
-    if (existing.walletId !== args.walletId) {
-      const oldWallet = await ctx.db.get(existing.walletId);
-      if (oldWallet) {
-        await ctx.db.patch(existing.walletId, {
-          balance: oldWallet.balance + existing.value,
-        });
-      }
-      await ctx.db.patch(args.walletId, {
-        balance: wallet.balance - args.value,
-      });
-    } else {
-      await ctx.db.patch(args.walletId, {
-        balance: wallet.balance - valueDiff,
-      });
-    }
-
-    if (existing.bucketId !== args.bucketId) {
-      const oldBucket = await ctx.db.get(existing.bucketId);
-      if (oldBucket) {
-        await ctx.db.patch(existing.bucketId, {
-          balance: oldBucket.balance + existing.value,
-        });
-      }
-      await ctx.db.patch(args.bucketId, {
-        balance: bucket.balance - args.value,
-      });
-    } else {
-      await ctx.db.patch(args.bucketId, {
-        balance: bucket.balance - valueDiff,
-      });
-    }
-
-    await ctx.db.patch(args.id, {
-      walletId: args.walletId,
-      bucketId: args.bucketId,
-      categoryId: args.categoryId,
-      title,
-      description,
-      value: args.value,
-      source,
-      date: args.date,
-    });
-
-    return args.id;
+    return updateExpenseForUser(ctx, userId, expense);
   },
 });
 
