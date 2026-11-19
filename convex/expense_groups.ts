@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { requireAuth } from "./auth";
 
 export const getExpenseGroups = query({
@@ -99,6 +99,68 @@ export const getAllExpenseGroups = query({
           bucketName: bucketNames.join(", "),
           walletName: wallet?.name ?? "No wallet",
           date: group.date,
+        };
+      }),
+    );
+  },
+});
+
+export const getExpenseGroupsInternal = internalQuery({
+  args: {
+    userId: v.id("users"),
+    dateFrom: v.optional(v.string()),
+    dateToExclusive: v.optional(v.string()),
+    limit: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const groups = await ctx.db
+      .query("expenseGroups")
+      .withIndex("by_userId_date", (q) => {
+        const owner = q.eq("userId", args.userId);
+        const from = args.dateFrom ? owner.gte("date", args.dateFrom) : owner;
+
+        return args.dateToExclusive
+          ? from.lt("date", args.dateToExclusive)
+          : from;
+      })
+      .order("desc")
+      .take(args.limit);
+
+    return Promise.all(
+      groups.map(async (group) => {
+        const [wallet, items] = await Promise.all([
+          ctx.db.get(group.walletId),
+          ctx.db
+            .query("expenses")
+            .withIndex("by_groupId", (q) => q.eq("groupId", group._id))
+            .collect(),
+        ]);
+
+        const [categories, buckets] = await Promise.all([
+          Promise.all(
+            items.map(
+              async (item) =>
+                (await ctx.db.get(item.categoryId))?.name ?? "No category",
+            ),
+          ),
+          Promise.all(
+            items.map(
+              async (item) =>
+                (await ctx.db.get(item.bucketId))?.name ?? "No bucket",
+            ),
+          ),
+        ]);
+
+        return {
+          id: group._id,
+          date: group.date,
+          source: group.source,
+          description: group.description ?? "",
+          wallet: wallet?.name ?? "No wallet",
+          itemCount: items.length,
+          total: items.reduce((sum, item) => sum + item.value, 0),
+          categories: [...new Set(categories)],
+          buckets: [...new Set(buckets)],
         };
       }),
     );

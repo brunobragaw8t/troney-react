@@ -273,6 +273,48 @@ export const mcpHandler = httpAction(async (ctx, request) => {
       },
     }),
     defineTool({
+      name: "list_expense_groups",
+      description:
+        "List expense groups: single purchases recorded as several line items. Each result has a total and the categories/buckets involved. Values are decimal currency. Use list_expenses and match on groupId to see the individual lines.",
+      args: z.object({
+        dateFrom: dateSchema.optional().meta({
+          description: "Start date (YYYY-MM-DD), inclusive",
+        }),
+        dateTo: dateSchema.optional().meta({
+          description: "End date (YYYY-MM-DD), inclusive",
+        }),
+        limit: z.number().int().min(1).max(100).optional().meta({
+          description:
+            "Maximum number of groups to return (default 20, max 100)",
+        }),
+      }),
+      handler: async (args) => {
+        if (args.dateTo && args.dateFrom && args.dateTo < args.dateFrom) {
+          throw new ConvexError("dateTo must be on or after dateFrom");
+        }
+
+        const dateToExclusive =
+          args.dateTo && args.dateTo < MAX_DATE
+            ? nextDay(args.dateTo)
+            : undefined;
+
+        const groups = await ctx.runQuery(
+          internal.expense_groups.getExpenseGroupsInternal,
+          {
+            userId,
+            dateFrom: args.dateFrom,
+            dateToExclusive,
+            limit: args.limit ?? 20,
+          },
+        );
+
+        return groups.map((group) => ({
+          ...group,
+          total: centsToDecimal(group.total),
+        }));
+      },
+    }),
+    defineTool({
       name: "register_expense",
       description:
         "Register an expense. Wallet, bucket and category are matched by name, case-insensitively; call the list tools first to get valid names. The expense decreases the wallet and bucket balances. Value is decimal currency (32.5 means 32.50).",
@@ -355,7 +397,7 @@ export const mcpHandler = httpAction(async (ctx, request) => {
     {
       capabilities: { tools: { listChanged: false } },
       instructions:
-        "Troney is a personal expense tracker. Use the list_* tools to look up valid wallet, bucket and category names before registering expenses. All money values in tool inputs and outputs are decimal currency numbers (32.5 means 32.50); dates are YYYY-MM-DD strings.",
+        "Troney is a personal expense tracker. Use the list_* tools to look up valid wallet, bucket and category names before registering expenses. Grouped purchases appear in list_expense_groups and as individual line items in list_expenses (non-null groupId). All money values in tool inputs and outputs are decimal currency numbers (32.5 means 32.50); dates are YYYY-MM-DD strings.",
     },
   );
 
