@@ -72,6 +72,7 @@ type CreateExpenseArgs = {
   value: number;
   source: string;
   date: string;
+  idempotencyKey?: string;
 };
 
 async function createExpenseForUser(
@@ -91,6 +92,18 @@ async function createExpenseForUser(
   const source = args.source.trim();
   if (source.length > 100)
     throw new ConvexError("Source must be 100 characters or less");
+
+  const idempotencyKey = args.idempotencyKey;
+  if (idempotencyKey) {
+    const existing = await ctx.db
+      .query("expenses")
+      .withIndex("by_userId_idempotencyKey", (q) =>
+        q.eq("userId", userId).eq("idempotencyKey", idempotencyKey),
+      )
+      .unique();
+
+    if (existing) return existing._id;
+  }
 
   const wallet = await ctx.db.get(args.walletId);
   if (!wallet || wallet.userId !== userId) {
@@ -117,6 +130,7 @@ async function createExpenseForUser(
     value: args.value,
     source,
     date: args.date,
+    idempotencyKey,
   });
 
   await ctx.db.patch(args.walletId, {
@@ -139,6 +153,7 @@ const createExpenseArgs = {
   value: v.number(),
   source: v.string(),
   date: v.string(),
+  idempotencyKey: v.optional(v.string()),
 };
 
 export const createExpense = mutation({

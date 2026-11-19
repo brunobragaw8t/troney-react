@@ -54,6 +54,7 @@ export default defineSchema({
     bucketId: v.id("buckets"),
     categoryId: v.id("categories"),
     groupId: v.optional(v.id("expenseGroups")),
+    idempotencyKey: v.optional(v.string()),
     title: v.string(),
     description: v.string(),
     value: v.number(),
@@ -62,6 +63,7 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_userId_date", ["userId", "date"])
+    .index("by_userId_idempotencyKey", ["userId", "idempotencyKey"])
     .index("by_walletId", ["walletId"])
     .index("by_bucketId", ["bucketId"])
     .index("by_categoryId", ["categoryId"])

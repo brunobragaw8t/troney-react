@@ -294,6 +294,10 @@ export const mcpHandler = httpAction(async (ctx, request) => {
           description:
             "Optional source, like the store name (max 100 characters)",
         }),
+        idempotencyKey: z.string().min(1).max(100).optional().meta({
+          description:
+            "Optional key (max 100 characters) that makes retries safe: reusing the same key returns the original expense instead of charging again",
+        }),
       }),
       handler: async (args) => {
         const [wallets, buckets, categories] = await Promise.all([
@@ -329,6 +333,7 @@ export const mcpHandler = httpAction(async (ctx, request) => {
           value: decimalToCents(args.value),
           source: args.source ?? "",
           date: args.date,
+          idempotencyKey: args.idempotencyKey,
         });
 
         return {
