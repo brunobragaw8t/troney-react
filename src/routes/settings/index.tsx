@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { McpSetupSection } from "../../components/settings/mcp-setup-section";
 import { McpTokensSection } from "../../components/settings/mcp-tokens-section";
 
 export const Route = createFileRoute("/settings/")({
@@ -14,6 +15,10 @@ function RouteComponent() {
       </div>
 
       <McpTokensSection />
+
+      <div className="mt-8">
+        <McpSetupSection />
+      </div>
     </>
   );
 }
