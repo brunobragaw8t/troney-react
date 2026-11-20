@@ -76,8 +76,9 @@ export function McpSetupSection() {
       <p className="mb-4 max-w-2xl text-sm text-secondary-4">
         Create a token above, replace {tokenPlaceholder} in a snippet below,
         then paste it into your agent's config. Agents can list your wallets,
-        buckets, categories and expenses (including expense-group line items)
-        and register new expenses. Creating expense groups is not supported yet.
+        buckets, categories, expenses (including expense-group line items) and
+        earnings, and register or update expenses and earnings. Creating expense
+        groups is not supported yet.
       </p>
 
       <Snippet label="Claude Code" code={claudeCodeCommand} />

@@ -134,9 +134,10 @@ export function McpTokensSection() {
     <section>
       <h2 className="mb-2 text-xl font-bold text-white">MCP access tokens</h2>
       <p className="mb-4 max-w-2xl text-sm text-secondary-4">
-        Tokens let your AI agents (via MCP) register expenses and read your data
-        on your behalf. A token is shown once, right after creation. Store it in
-        your agent's configuration. Tokens are valid until revoked.
+        Tokens let your AI agents (via MCP) register expenses and earnings and
+        read your data on your behalf. A token is shown once, right after
+        creation. Store it in your agent's configuration. Tokens are valid until
+        revoked.
       </p>
 
       {alert.message && (

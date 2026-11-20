@@ -6,8 +6,9 @@ Troney should expose its functionality as a first-party MCP server, so users can
 ## Goals
 
 - Users connect any MCP client to Troney with per-user credentials.
-- Agents can read data (expenses, wallets, buckets, categories) and write data
-  (register expenses) through high-level, schema'd tools.
+- Agents can read data (expenses, earnings, wallets, buckets, categories) and
+  write data (register and update expenses and earnings) through high-level,
+  schema'd tools.
 - Access is per-user and revocable: there is a single token type, read-write.
 
 ## Non-goals (for v1)
@@ -16,8 +17,9 @@ Troney should expose its functionality as a first-party MCP server, so users can
   personal access tokens are the pragmatic first step, mirroring Stripe's
   "agent API key" direction).
 - In-browser WebMCP tools (separate, later feature).
-- Tools for movements, creation of expense groups, earnings, or recurring expenses
-  (can be added incrementally on the same foundation — v1 is expenses-only).
+- Tools for movements, creation of expense groups, or recurring expenses
+  (can be added incrementally on the same foundation — v1 is expenses-only;
+  earnings tools were added later in Phase 5 of the plan).
   Existing expense-group line items are visible via `list_expenses` with their
   `groupId` and group totals via the read-only `list_expense_groups`; agents
   cannot create or edit groups.
@@ -46,6 +48,8 @@ Read:
   resolved names, including expense-group line items (non-null `groupId`).
 - `list_expense_groups(dateFrom?, dateTo?, limit?)` — read-only group-level
   totals and category/bucket breakdowns.
+- `list_earnings(dateFrom?, dateTo?, limit?)` — latest first, with the resolved
+  wallet name and the bucket allocations created with each earning.
 
 Write:
 
@@ -53,6 +57,11 @@ Write:
 source?, idempotencyKey?)` — resolves names to IDs and returns the created
   (or reused) expense `id`. A repeated `idempotencyKey` is a no-op, so agent
   retries cannot double-charge the wallet and bucket.
+- `register_earning(title, value, date, wallet, description?, source?)` —
+  resolves the wallet by name and allocates the positive value to buckets by
+  their budgets (which must total 100%).
+- `update_earning(id, ...)` — partially updates an earning; wallet balance and
+  bucket allocations are recalculated.
 
 ## Money format
 
@@ -107,3 +116,7 @@ Static checks pass (prettier, Convex typecheck, lint with 0 errors, build). No
 tests are committed; temporary verification scripts and fixture data were
 deleted. Production URL testing remains pending until a production deployment
 is provided.
+
+Post-v1 additions on the same foundation: `update_expense`, then `list_earnings`,
+`register_earning` and `update_earning` (plan Phase 5). The v1 tool counts above
+refer to the original six-tool surface.

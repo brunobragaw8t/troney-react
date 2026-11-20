@@ -107,6 +107,17 @@ const moneySchema = z
       "Non-zero amount in decimal currency (e.g. 32.5). Negative values register a refund, which increases the wallet and bucket balances",
   });
 
+const positiveMoneySchema = z
+  .number()
+  .refine(
+    hasExactCents,
+    "Amount must have at most 2 decimal places (e.g. 32.5)",
+  )
+  .refine((value) => value > 0, "Amount must be greater than zero")
+  .meta({
+    description: "Positive amount in decimal currency (e.g. 32.5)",
+  });
+
 interface McpTool extends Tool {
   call: (rawArgs: unknown) => Promise<unknown>;
 }
@@ -320,6 +331,58 @@ export const mcpHandler = httpAction(async (ctx, request) => {
       },
     }),
     defineTool({
+      name: "list_earnings",
+      description:
+        "List registered earnings (income) in a date range, latest first. Dates are inclusive YYYY-MM-DD strings. Values are decimal currency. Each earning includes its wallet and the bucket allocations created when it was registered.",
+      args: z.object({
+        dateFrom: dateSchema.optional().meta({
+          description: "Start date (YYYY-MM-DD), inclusive",
+        }),
+        dateTo: dateSchema.optional().meta({
+          description: "End date (YYYY-MM-DD), inclusive",
+        }),
+        limit: z.number().int().min(1).max(100).optional().meta({
+          description:
+            "Maximum number of earnings to return (default 20, max 100)",
+        }),
+      }),
+      handler: async (args) => {
+        if (args.dateTo && args.dateFrom && args.dateTo < args.dateFrom) {
+          throw new ConvexError("dateTo must be on or after dateFrom");
+        }
+
+        const dateToExclusive =
+          args.dateTo && args.dateTo < MAX_DATE
+            ? nextDay(args.dateTo)
+            : undefined;
+
+        const earnings = await ctx.runQuery(
+          internal.earnings.getEarningsInternal,
+          {
+            userId,
+            dateFrom: args.dateFrom,
+            dateToExclusive,
+            limit: args.limit ?? 20,
+          },
+        );
+
+        return earnings.map((earning) => ({
+          id: earning._id,
+          title: earning.title,
+          value: centsToDecimal(earning.value),
+          date: earning.date,
+          wallet: earning.walletName,
+          description: earning.description,
+          source: earning.source,
+          allocations: earning.allocations.map((allocation) => ({
+            bucket: allocation.bucket,
+            bucketPercentage: allocation.bucketPercentage,
+            value: centsToDecimal(allocation.value),
+          })),
+        }));
+      },
+    }),
+    defineTool({
       name: "register_expense",
       description:
         "Register an expense. Wallet, bucket and category are matched by name, case-insensitively; call the list tools first to get valid names. The expense decreases the wallet and bucket balances; a negative value registers a refund and increases them. Value is decimal currency (32.5 means 32.50).",
@@ -517,6 +580,150 @@ export const mcpHandler = httpAction(async (ctx, request) => {
         };
       },
     }),
+    defineTool({
+      name: "register_earning",
+      description:
+        "Register an earning (income). The wallet is matched by name, case-insensitively; call list_wallets first to get valid names. The value must be positive and decimal currency (32.5 means 32.50). It increases the wallet balance and is allocated to your buckets according to their budgets, which must total 100%.",
+      args: z.object({
+        title: z
+          .string()
+          .min(1)
+          .max(100)
+          .meta({ description: "Short description (max 100 characters)" }),
+        value: positiveMoneySchema,
+        date: dateSchema.meta({ description: "Earning date (YYYY-MM-DD)" }),
+        wallet: z.string().min(1).meta({ description: "Wallet name" }),
+        description: z.string().max(255).optional().meta({
+          description: "Optional longer description (max 255 characters)",
+        }),
+        source: z.string().max(100).optional().meta({
+          description:
+            "Optional source, like the employer name (max 100 characters)",
+        }),
+      }),
+      handler: async (args) => {
+        const wallets = await ctx.runQuery(
+          internal.wallets.getWalletsInternal,
+          { userId },
+        );
+
+        const wallet = findByName(wallets, args.wallet);
+        if (!wallet) {
+          throw new ConvexError(unknownMessage("wallet", args.wallet, wallets));
+        }
+
+        const earningId = await ctx.runMutation(
+          internal.earnings.createEarningInternal,
+          {
+            userId,
+            walletId: wallet._id,
+            title: args.title,
+            description: args.description ?? "",
+            value: decimalToCents(args.value),
+            source: args.source ?? "",
+            date: args.date,
+          },
+        );
+
+        return {
+          id: earningId,
+          title: args.title,
+          value: args.value,
+          date: args.date,
+          wallet: wallet.name,
+          description: args.description ?? "",
+          source: args.source ?? "",
+        };
+      },
+    }),
+    defineTool({
+      name: "update_earning",
+      description:
+        "Update an existing earning: change its title, value, date, description, source or wallet. Only the provided fields change; wallet is matched by name, case-insensitively. Use list_earnings to find the earning id. Wallet balance and bucket allocations are adjusted when the value or wallet changes.",
+      args: z.object({
+        id: z
+          .string()
+          .min(1)
+          .meta({ description: "Earning id, as returned by list_earnings" }),
+        title: z
+          .string()
+          .min(1)
+          .max(100)
+          .optional()
+          .meta({ description: "New short description (max 100 characters)" }),
+        value: positiveMoneySchema.optional().meta({
+          description: "New positive amount in decimal currency (e.g. 32.5)",
+        }),
+        date: dateSchema.optional().meta({ description: "New earning date" }),
+        wallet: z
+          .string()
+          .min(1)
+          .optional()
+          .meta({ description: "New wallet name" }),
+        description: z.string().max(255).optional().meta({
+          description: "New longer description (max 255 characters)",
+        }),
+        source: z.string().max(100).optional().meta({
+          description:
+            "New source, like the employer name (max 100 characters)",
+        }),
+      }),
+      handler: async (args) => {
+        const id = args.id as Id<"earnings">;
+
+        const existing = await ctx.runQuery(
+          internal.earnings.getEarningInternal,
+          { userId, id },
+        );
+        if (!existing) {
+          throw new ConvexError(`Earning ${args.id} not found`);
+        }
+
+        const wallets = await ctx.runQuery(
+          internal.wallets.getWalletsInternal,
+          { userId },
+        );
+
+        let wallet;
+        if (args.wallet !== undefined) {
+          const found = findByName(wallets, args.wallet);
+          if (!found) {
+            throw new ConvexError(
+              unknownMessage("wallet", args.wallet, wallets),
+            );
+          }
+          wallet = found;
+        } else {
+          wallet = wallets.find(
+            (candidate) => candidate._id === existing.walletId,
+          );
+          if (!wallet) throw new ConvexError("Current wallet is missing");
+        }
+
+        const value = args.value ?? centsToDecimal(existing.value);
+
+        await ctx.runMutation(internal.earnings.updateEarningInternal, {
+          userId,
+          id,
+          walletId: wallet._id,
+          title: args.title ?? existing.title,
+          description: args.description ?? existing.description,
+          value: decimalToCents(value),
+          source: args.source ?? existing.source,
+          date: args.date ?? existing.date,
+        });
+
+        return {
+          id: args.id,
+          title: args.title ?? existing.title,
+          value,
+          date: args.date ?? existing.date,
+          wallet: wallet.name,
+          description: args.description ?? existing.description,
+          source: args.source ?? existing.source,
+        };
+      },
+    }),
   ];
 
   const server = new Server(
@@ -524,7 +731,7 @@ export const mcpHandler = httpAction(async (ctx, request) => {
     {
       capabilities: { tools: { listChanged: false } },
       instructions:
-        "Troney is a personal expense tracker. Use the list_* tools to look up valid wallet, bucket and category names before registering expenses. Grouped purchases appear in list_expense_groups and as individual line items in list_expenses (non-null groupId). All money values in tool inputs and outputs are decimal currency numbers (32.5 means 32.50); dates are YYYY-MM-DD strings.",
+        "Troney is a personal finance tracker. Use the list_* tools to look up valid wallet, bucket and category names before registering expenses or earnings. Grouped purchases appear in list_expense_groups and as individual line items in list_expenses (non-null groupId). Earnings are allocated to buckets according to their budgets. All money values in tool inputs and outputs are decimal currency numbers (32.5 means 32.50); dates are YYYY-MM-DD strings.",
     },
   );
 

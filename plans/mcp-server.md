@@ -167,10 +167,62 @@ Add an `llms.txt`-style snippet page or section in settings with copy-paste conf
 - [x] Real MCP client end-to-end against the dev deployment: `initialize`, `tools/list` (six tools), group + line-item reads, and idempotent `register_expense`. All temporary fixtures, tokens and scripts were removed afterwards; no test files committed.
 - [ ] Manual test against production deployment URL once deployed (CORS not needed for server-to-server/stdio clients; verify direct POST works from Inspector). Pending: no production URL was provided.
 
+## Phase 5: Earnings tools
+
+### Step 9: Internal earnings functions
+
+`convex/earnings.ts`: extract create/update validation into shared helpers used
+by both UI mutations and new internal mutations taking an explicit `userId`.
+Add `getEarningsInternal` (optional inclusive date range + limit, resolved
+wallet name and bucket allocations) and `getEarningInternal` (id + ownership).
+
+#### Acceptance criteria
+
+- [x] UI and MCP writes share validation and balance/allocation logic
+- [x] Internal reads and writes only touch the token owner's earnings
+
+### Step 10: `list_earnings` read tool
+
+`list_earnings(dateFrom?, dateTo?, limit?)` → latest first, decimal currency
+values, resolved wallet name and each allocation's bucket, percentage and
+value. Same date validation as `list_expenses`.
+
+#### Acceptance criteria
+
+- [x] Tool returns decimal currency only, with calendar-validated dates
+- [x] `dateTo` before `dateFrom` is rejected
+
+### Step 11: `register_earning` and `update_earning` write tools
+
+`register_earning(title, value, date, wallet, description?, source?)` resolves
+the wallet by name (case-insensitively, listing valid names on a miss), rejects
+non-positive values and delegates to `createEarningInternal`.
+`update_earning(id, ...)` changes only supplied fields, uses
+`getEarningInternal` for current values and delegates to
+`updateEarningInternal` so balances and allocations are recalculated.
+
+#### Acceptance criteria
+
+- [x] Unknown wallet names list valid alternatives
+- [x] Positive exact-cent values only; balances and allocations stay consistent
+- [x] Partial updates preserve unspecified fields
+
+### Step 12: Docs and settings copy
+
+Update README ToDo, settings MCP copy, PRD and this plan.
+
+#### Acceptance criteria
+
+- [x] Settings text describes earnings reads and writes
+
+> Status: Steps 9–12 implemented. Static checks pass; live end-to-end MCP
+> verification for earnings remains pending (Phase 4 covered expenses only).
+> Tool count is now ten (seven original + three earnings tools).
+
 ---
 
 ## Unresolved questions
 
-a) ~~Should write actions beyond expenses (earnings, movements) join v1?~~ **Resolved: expenses-only for v1.**
+a) ~~Should write actions beyond expenses (earnings, movements) join v1?~~ **Resolved: expenses-only for v1; earnings added in Phase 5.**
 b) ~~Read-only token scope in v1?~~ **Resolved: no scopes; single-user app, all tokens read-write.**
 c) ~~Token expiry?~~ **Resolved: valid until revoked.**
